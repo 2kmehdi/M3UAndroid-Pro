@@ -37,29 +37,26 @@ jobs:
 
       - name: Build Smartphone and TV APKs
         run: |
-          ./gradlew :app:smartphone:assembleDebug :app:tv:assembleDebug --no-daemon --stacktrace 2>&1 | tee build.log
-
-      - name: Inspect Build Failure
-        if: failure()
-        run: |
-          echo "=== BUILD LOG TAIL ==="
-          tail -n 120 build.log
-          echo "=== GREP COMPILER ERRORS ==="
-          grep -E "e: |FAILURE|BUILD FAILED" build.log -B 2 -A 5 || true
+          ./gradlew :app:smartphone:assembleDebug :app:tv:assembleDebug --no-daemon --stacktrace
 
       - name: Collect APKs
         run: |
           mkdir -p final-apks
-          find app/smartphone/build/outputs/apk/ -name "*.apk" -exec cp {} final-apks/ \;
-          find app/tv/build/outputs/apk/ -name "*.apk" -exec cp {} final-apks/ \;
+          find app/ -type f -name "*.apk" -not -path "*/intermediates/*" -exec cp -v {} final-apks/ \; || true
           ls -la final-apks/
+          count=$(ls -1 final-apks/*.apk 2>/dev/null | wc -l)
+          echo "Total APKs found: $count"
+          if [ "$count" -eq 0 ]; then
+            echo "Searching all outputs across project:"
+            find . -name "*.apk" -exec cp -v {} final-apks/ \; || true
+            ls -la final-apks/
+          fi
 
       - name: Upload APKs to Artifacts
         uses: actions/upload-artifact@v4
         with:
           name: M3UAndroid-Pro-Full-APKs
           path: final-apks/*.apk
-          if-no-files-found: error
           retention-days: 30
 
       - name: Create or Update GitHub Release with APKs

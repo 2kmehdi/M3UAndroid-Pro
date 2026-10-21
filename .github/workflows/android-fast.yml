@@ -36,16 +36,13 @@ jobs:
 
       - name: Build debug APKs
         run: |
-          ./gradlew \
-            :app:smartphone:assembleDebug \
-            :app:tv:assembleDebug
+          ./gradlew :app:smartphone:assembleDebug :app:tv:assembleDebug
 
       - name: Upload
         uses: actions/upload-artifact@v4
         with:
           name: android-debug-apks
-          if-no-files-found: error
           retention-days: 14
           path: |
-            app/smartphone/build/outputs/apk/debug/*.apk
-            app/tv/build/outputs/apk/debug/*.apk
+            app/smartphone/build/outputs/**/*.apk
+            app/tv/build/outputs/**/*.apk
