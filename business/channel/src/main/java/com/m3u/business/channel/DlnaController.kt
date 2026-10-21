@@ -478,7 +478,7 @@ sealed interface DlnaCastState {
  */
 val Device.brandCategory: String
     get() {
-        val combined = "${friendlyName.orEmpty()} ${manufacturer.orEmpty()} ${modelName.orEmpty()}".lowercase(Locale.ROOT)
+        val combined = "${friendlyName.orEmpty()} ${modelName.orEmpty()}".lowercase(Locale.ROOT)
         return when {
             combined.contains("samsung") || combined.contains("tizen") -> "Samsung Smart TV"
             combined.contains("lg") || combined.contains("webos") || combined.contains("netcast") -> "LG webOS TV"
