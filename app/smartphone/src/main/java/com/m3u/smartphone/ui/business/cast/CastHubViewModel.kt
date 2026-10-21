@@ -119,13 +119,10 @@ class CastHubViewModel @Inject constructor(
      */
     fun playInApp(url: String, title: String) {
         viewModelScope.launch {
-            val tempChannel = Channel(
-                url = url,
-                category = "Quick Cast",
-                title = title.ifBlank { "Stream" },
-                playlistUrl = "quick_cast_direct"
-            )
-            playerManager.play(MediaCommand.Common(tempChannel.id, tempChannel.url))
+            val recently = channelRepository.getPlayedRecently()
+            recently?.let {
+                playerManager.play(MediaCommand.Common(it.id))
+            }
         }
     }
 
