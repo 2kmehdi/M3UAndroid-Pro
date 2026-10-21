@@ -16,7 +16,7 @@ concurrency:
 jobs:
   build-apks:
     runs-on: ubuntu-latest
-    timeout-minutes: 60
+    timeout-minutes: 45
 
     steps:
       - name: Checkout Code
@@ -35,25 +35,23 @@ jobs:
         with:
           gradle-home-cache-cleanup: true
 
-      - name: Build Smartphone APKs
+      - name: Build Smartphone and TV APKs
         run: |
-          ./gradlew :app:smartphone:assembleRelease :app:smartphone:assembleDebug
+          ./gradlew :app:smartphone:assembleDebug :app:tv:assembleDebug --no-daemon
 
-      - name: Build TV APKs
-        run: |
-          ./gradlew :app:tv:assembleRelease :app:tv:assembleDebug
-
-      - name: Copy & Rename APKs for Easy Download
+      - name: Collect APKs
         run: |
           mkdir -p final-apks
-          find app/ -name "*.apk" -exec cp {} final-apks/ \;
+          find app/smartphone/build/outputs/apk/ -name "*.apk" -exec cp {} final-apks/ \;
+          find app/tv/build/outputs/apk/ -name "*.apk" -exec cp {} final-apks/ \;
           ls -la final-apks/
 
-      - name: Upload APKs as Artifacts
+      - name: Upload APKs to Artifacts
         uses: actions/upload-artifact@v4
         with:
           name: M3UAndroid-Pro-Full-APKs
           path: final-apks/*.apk
+          if-no-files-found: error
           retention-days: 30
 
       - name: Create GitHub Release with APKs
