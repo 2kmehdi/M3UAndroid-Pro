@@ -35,9 +35,25 @@ jobs:
         with:
           gradle-home-cache-cleanup: true
 
-      - name: Build Smartphone and TV APKs
+      - name: Build Smartphone APK
+        id: build_smartphone
         run: |
-          ./gradlew :app:smartphone:assembleDebug :app:tv:assembleDebug --no-daemon --stacktrace
+          ./gradlew :app:smartphone:assembleDebug --stacktrace > smartphone-build.log 2>&1 || true
+          cat smartphone-build.log | grep -E "e: |FAILURE|BUILD FAILED" -B 2 -A 5 > error_summary.txt || true
+          tail -n 100 smartphone-build.log >> error_summary.txt
+          if grep -q "BUILD SUCCESSFUL" smartphone-build.log; then
+            echo "smartphone_success=true" >> $GITHUB_OUTPUT
+          else
+            echo "smartphone_success=false" >> $GITHUB_OUTPUT
+            gh release create error-log-${{ github.run_id }} error_summary.txt smartphone-build.log --title "Build Error ${{ github.run_id }}" --notes-file error_summary.txt || true
+            exit 1
+          fi
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build TV APK
+        run: |
+          ./gradlew :app:tv:assembleDebug --no-daemon
 
       - name: Collect APKs
         run: |
@@ -46,11 +62,6 @@ jobs:
           ls -la final-apks/
           count=$(ls -1 final-apks/*.apk 2>/dev/null | wc -l)
           echo "Total APKs found: $count"
-          if [ "$count" -eq 0 ]; then
-            echo "Searching all outputs across project:"
-            find . -name "*.apk" -exec cp -v {} final-apks/ \; || true
-            ls -la final-apks/
-          fi
 
       - name: Upload APKs to Artifacts
         uses: actions/upload-artifact@v4
