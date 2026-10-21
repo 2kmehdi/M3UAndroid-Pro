@@ -87,8 +87,11 @@ jobs:
             testing/extension-reference/build/outputs/apk/release/*.apk
 
       - name: Upload To Telegram
-        if: github.event_name != 'pull_request'
+        if: github.event_name != 'pull_request' && env.BOT_TOKEN != ''
+        continue-on-error: true
         uses: xireiki/channel-post@890c1d09635ae629aeffbed4f9716a5473eac896 # v1.0.10
+        env:
+          BOT_TOKEN: ${{ secrets.BOT_TOKEN }}
         with:
           bot_token: ${{ secrets.BOT_TOKEN }}
           chat_id: ${{ secrets.CHAT_ID }}
