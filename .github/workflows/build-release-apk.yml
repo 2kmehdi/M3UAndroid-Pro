@@ -46,8 +46,7 @@ jobs:
       - name: Copy & Rename APKs for Easy Download
         run: |
           mkdir -p final-apks
-          find app/smartphone/build/outputs/apk/ -name "*.apk" -exec cp {} final-apks/ \;
-          find app/tv/build/outputs/apk/ -name "*.apk" -exec cp {} final-apks/ \;
+          find app/ -name "*.apk" -exec cp {} final-apks/ \;
           ls -la final-apks/
 
       - name: Upload APKs as Artifacts

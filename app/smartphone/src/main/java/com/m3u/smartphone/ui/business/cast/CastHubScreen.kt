@@ -590,7 +590,7 @@ private fun WebSnifferTab(
 
         if (pageLoadingProgress in 1..99) {
             LinearProgressIndicator(
-                progress = { pageLoadingProgress / 100f },
+                progress = pageLoadingProgress / 100f,
                 modifier = Modifier.fillMaxWidth().height(2.dp)
             )
         }

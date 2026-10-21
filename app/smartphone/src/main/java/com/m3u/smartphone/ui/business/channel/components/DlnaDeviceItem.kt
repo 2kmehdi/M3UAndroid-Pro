@@ -41,7 +41,9 @@ internal fun DlnaDeviceItem(
 ) {
     val brand = device?.brandCategory ?: "Smart TV"
     val friendlyName = device?.friendlyName.orEmpty().ifBlank { brand }
-    val model = device?.modelName?.takeIf { it.isNotBlank() } ?: device?.ipAddress
+    val model = device?.modelName?.takeIf { it.isNotBlank() } ?: device?.location?.let {
+        runCatching { java.net.URI(it).host }.getOrNull()
+    }
 
     Surface(
         color = if (isSelected) MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.4f) else Color.Transparent,
