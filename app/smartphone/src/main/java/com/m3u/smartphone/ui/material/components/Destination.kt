@@ -31,6 +31,11 @@ enum class Destination(
         unselectedIcon = Icons.Outlined.Collections,
         iconTextId = string.ui_destination_favourite
     ),
+    Cast(
+        selectedIcon = Icons.Rounded.CastConnected,
+        unselectedIcon = Icons.Rounded.Cast,
+        iconTextId = string.ui_destination_cast
+    ),
     Setting(
         selectedIcon = Icons.Rounded.Settings,
         unselectedIcon = Icons.Outlined.Settings,

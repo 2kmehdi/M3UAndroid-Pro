@@ -59,8 +59,12 @@ import kotlin.time.Duration.Companion.hours
 import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.minutes
 
+import android.content.Context
+import dagger.hilt.android.qualifiers.ApplicationContext
+
 @HiltViewModel
 class ChannelViewModel @Inject constructor(
+    @ApplicationContext private val context: Context,
     private val playlistRepository: PlaylistRepository,
     private val channelRepository: ChannelRepository,
     private val playerManager: PlayerManager,
@@ -181,12 +185,14 @@ class ChannelViewModel @Inject constructor(
     // show searching devices dialog or not
     val isDevicesVisible = _isDevicesVisible.asStateFlow()
 
-    private val dlnaController = DlnaController()
+    private val dlnaController = DlnaController(context)
 
     // searched screencast devices
     val devices: StateFlow<List<Device>> = dlnaController.devices
     // searching or not
     val searching: StateFlow<Boolean> = dlnaController.searching
+    // active cast state
+    val castState: StateFlow<DlnaCastState> = dlnaController.castState
 
     private var dlnaSearchJob: Job? = null
 
@@ -218,6 +224,22 @@ class ChannelViewModel @Inject constructor(
 
     fun disconnectDlnaDevice(device: Device) {
         dlnaController.stop(device)
+    }
+
+    fun pauseDlnaDevice(device: Device) {
+        dlnaController.pause(device)
+    }
+
+    fun resumeDlnaDevice(device: Device) {
+        dlnaController.resume(device)
+    }
+
+    fun seekDlnaDevice(device: Device, positionMs: Long) {
+        dlnaController.seek(device, positionMs)
+    }
+
+    fun setDlnaVolume(device: Device, volumePercent: Int) {
+        dlnaController.setVolume(device, volumePercent)
     }
 
     fun onFavorite() {

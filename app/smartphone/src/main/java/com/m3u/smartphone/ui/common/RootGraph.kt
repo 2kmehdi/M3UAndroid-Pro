@@ -74,6 +74,29 @@ fun NavGraphBuilder.rootGraph(
     }
 
     composable(
+        route = Destination.Cast.name,
+        enterTransition = { fadeIn() },
+        exitTransition = { fadeOut() }
+    ) {
+        com.m3u.smartphone.ui.business.cast.CastHubRoute(
+            navigateToChannel = navigateToChannel,
+            contentPadding = contentPadding,
+            modifier = Modifier
+                .fillMaxSize()
+                .then(
+                    if (showBottomEdgeBlur) {
+                        Modifier.blurEdge(
+                            edge = Edge.Bottom,
+                            color = MaterialTheme.colorScheme.background,
+                        )
+                    } else {
+                        Modifier
+                    },
+                ),
+        )
+    }
+
+    composable(
         route = Destination.Setting.name,
         enterTransition = { fadeIn() },
         exitTransition = { fadeOut() }

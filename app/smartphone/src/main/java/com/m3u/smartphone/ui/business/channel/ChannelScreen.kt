@@ -103,6 +103,7 @@ fun ChannelRoute(
     val devices by viewModel.devices.collectAsStateWithLifecycle()
     val isDevicesVisible by viewModel.isDevicesVisible.collectAsStateWithLifecycle()
     val searching by viewModel.searching.collectAsStateWithLifecycle()
+    val castState by viewModel.castState.collectAsStateWithLifecycle()
 
     val tracks by viewModel.tracks.collectAsStateWithLifecycle(emptyMap())
     val selectedFormats by viewModel.currentTracks.collectAsStateWithLifecycle(emptyMap())
@@ -335,7 +336,13 @@ fun ChannelRoute(
         searching = searching,
         isDevicesVisible = isDevicesVisible && supportsDirectSharing,
         devices = devices,
+        castState = castState,
         connectDlnaDevice = { viewModel.connectDlnaDevice(it) },
+        onDisconnect = { viewModel.disconnectDlnaDevice(it) },
+        onPause = { viewModel.pauseDlnaDevice(it) },
+        onResume = { viewModel.resumeDlnaDevice(it) },
+        onSeek = { dev, pos -> viewModel.seekDlnaDevice(dev, pos) },
+        onSetVolume = { dev, vol -> viewModel.setDlnaVolume(dev, vol) },
         openInExternalPlayer = {
             val channelUrl = channel
                 ?.url
