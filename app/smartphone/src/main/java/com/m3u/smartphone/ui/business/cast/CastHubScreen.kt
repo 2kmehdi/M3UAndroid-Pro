@@ -590,7 +590,6 @@ private fun WebSnifferTab(
 
         if (pageLoadingProgress in 1..99) {
             LinearProgressIndicator(
-                progress = pageLoadingProgress / 100f,
                 modifier = Modifier.fillMaxWidth().height(2.dp)
             )
         }
@@ -719,7 +718,7 @@ private fun WebSnifferTab(
                             Column(modifier = Modifier.padding(12.dp)) {
                                 Row(verticalAlignment = Alignment.CenterVertically) {
                                     Surface(
-                                        color = Color(stream.streamType.badgeColor),
+                                        color = stream.streamType.badgeColor,
                                         shape = RoundedCornerShape(4.dp)
                                     ) {
                                         Text(

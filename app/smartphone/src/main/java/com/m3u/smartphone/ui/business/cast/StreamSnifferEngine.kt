@@ -1,17 +1,18 @@
 package com.m3u.smartphone.ui.business.cast
 
 import android.webkit.WebResourceRequest
+import androidx.compose.ui.graphics.Color
 import java.util.Locale
 import java.util.UUID
 
-enum class StreamType(val label: String, val badgeColor: Long) {
-    HLS("HLS Live (.m3u8)", 0xFFE91E63),
-    DASH("MPEG-DASH (.mpd)", 0xFF9C27B0),
-    MP4("MP4 Video", 0xFF2196F3),
-    MKV("MKV Video", 0xFF009688),
-    TS("TS Stream", 0xFFFF9800),
-    GENERIC_LIVE("Live Stream", 0xFF4CAF50),
-    UNKNOWN("Media Stream", 0xFF607D8B)
+enum class StreamType(val label: String, val badgeColor: Color) {
+    HLS("HLS Live (.m3u8)", Color(0xFFE91E63)),
+    DASH("MPEG-DASH (.mpd)", Color(0xFF9C27B0)),
+    MP4("MP4 Video", Color(0xFF2196F3)),
+    MKV("MKV Video", Color(0xFF009688)),
+    TS("TS Stream", Color(0xFFFF9800)),
+    GENERIC_LIVE("Live Stream", Color(0xFF4CAF50)),
+    UNKNOWN("Media Stream", Color(0xFF607D8B))
 }
 
 data class DetectedStream(
