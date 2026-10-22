@@ -212,7 +212,7 @@ fun V4LiveTvAndEpgView(
 @Composable
 private fun V4ChannelRowItem(
     title: String,
-    logoUrl: String,
+    logoUrl: String? = null,
     onClick: () -> Unit
 ) {
     Row(
@@ -231,7 +231,7 @@ private fun V4ChannelRowItem(
                 .clip(RoundedCornerShape(8.dp))
                 .background(Color.White.copy(alpha = 0.04f))
         ) {
-            if (logoUrl.isNotBlank()) {
+            if (!logoUrl.isNullOrBlank()) {
                 AsyncImage(
                     model = logoUrl,
                     contentDescription = title,
