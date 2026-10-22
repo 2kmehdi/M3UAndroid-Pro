@@ -50,6 +50,11 @@ import com.m3u.i18n.R.string
 import com.m3u.smartphone.ui.business.foryou.components.HeadlineBackground
 import com.m3u.smartphone.ui.business.foryou.components.PlaylistGallery
 import com.m3u.smartphone.ui.business.foryou.components.ProIptvHeader
+import com.m3u.smartphone.ui.business.foryou.components.V4IptvSourcesSheet
+import com.m3u.smartphone.ui.business.foryou.components.V4LiveTvAndEpgView
+import com.m3u.smartphone.ui.business.foryou.components.V4SeriesVodView
+import com.m3u.smartphone.ui.business.foryou.components.V4SourceSwitcherBottomSheet
+import com.m3u.smartphone.ui.business.foryou.components.V4TopSourceHeader
 import com.m3u.smartphone.ui.business.foryou.components.recommend.RecommendGallery
 import com.m3u.smartphone.ui.common.helper.Action
 import com.m3u.smartphone.ui.common.helper.LocalHelper
@@ -135,6 +140,7 @@ fun ForyouRoute(
             navigateToPlaylistConfiguration = navigateToPlaylistConfiguration,
             onUnsubscribePlaylist = viewModel::onUnsubscribePlaylist,
             onNavigateToCastHub = navigateToCastHub,
+            navigateToSettingPlaylistManagement = navigateToSettingPlaylistManagement,
             modifier = Modifier
                 .fillMaxSize()
                 .thenIf(godMode) {
@@ -182,6 +188,7 @@ private fun ForyouScreen(
     navigateToPlaylistConfiguration: (Playlist) -> Unit,
     onUnsubscribePlaylist: (playlistUrl: String) -> Unit,
     onNavigateToCastHub: () -> Unit,
+    navigateToSettingPlaylistManagement: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     val configuration = LocalConfiguration.current
@@ -190,6 +197,14 @@ private fun ForyouScreen(
     var headlineSpec: Recommend.Spec? by remember { mutableStateOf(null) }
     var selectedProfileId by remember { mutableStateOf("all") }
     var selectedCategory by remember { mutableStateOf("⚡ All") }
+
+    var showSourceSwitcherSheet by remember { mutableStateOf(false) }
+    var showSourcesManagementSheet by remember { mutableStateOf(false) }
+    var activePlaylistUrl by remember { mutableStateOf("") }
+
+    val activePlaylist = remember(playlists, activePlaylistUrl) {
+        playlists.keys.find { it.url == activePlaylistUrl } ?: playlists.keys.firstOrNull()
+    }
 
     val filteredPlaylists = remember(playlists, selectedProfileId, selectedCategory) {
         when {
@@ -246,39 +261,97 @@ private fun ForyouScreen(
 
     Box(modifier) {
         HeadlineBackground()
-        val header = @Composable {
-            Column(modifier = Modifier.fillMaxWidth()) {
-                ProIptvHeader(
-                    totalPlaylists = filteredPlaylists.size,
-                    selectedProfileId = selectedProfileId,
-                    onSelectProfile = { selectedProfileId = it },
-                    selectedCategory = selectedCategory,
-                    onSelectCategory = { selectedCategory = it },
-                    onNavigateToCastHub = onNavigateToCastHub,
-                    modifier = Modifier.fillMaxWidth()
-                )
-                if (specs.isNotEmpty()) {
-                    RecommendGallery(
-                        specs = specs,
-                        navigateToPlaylist = navigateToPlaylist,
-                        onPlayChannel = onPlayChannel,
-                        onSpecChanged = { spec -> headlineSpec = spec },
-                        modifier = Modifier.fillMaxWidth()
+        Column(modifier = Modifier.fillMaxSize()) {
+            // V4 Top Source App Bar (Matching Screenshots 2, 4, 5)
+            V4TopSourceHeader(
+                activeSourceName = activePlaylist?.title ?: "2028",
+                activeSourceColor = Color(0xFF00E5FF),
+                onOpenSourceSwitcher = { showSourceSwitcherSheet = true },
+                onOpenSearch = {
+                    activePlaylist?.let(navigateToPlaylist)
+                },
+                onOpenSourcesManager = { showSourcesManagementSheet = true },
+                onOpenSettings = navigateToSettingPlaylistManagement
+            )
+
+            when (selectedCategory) {
+                "📡 Live TV" -> {
+                    V4LiveTvAndEpgView(
+                        channels = emptyList(),
+                        onChannelClick = onPlayChannel,
+                        modifier = Modifier.fillMaxSize()
+                    )
+                }
+                "🍿 Movies", "🎞️ TV Shows" -> {
+                    V4SeriesVodView(
+                        vodChannels = emptyList(),
+                        onVodClick = onPlayChannel,
+                        modifier = Modifier.fillMaxSize()
+                    )
+                }
+                else -> {
+                    val header = @Composable {
+                        Column(modifier = Modifier.fillMaxWidth()) {
+                            ProIptvHeader(
+                                totalPlaylists = filteredPlaylists.size,
+                                selectedProfileId = selectedProfileId,
+                                onSelectProfile = { selectedProfileId = it },
+                                selectedCategory = selectedCategory,
+                                onSelectCategory = { selectedCategory = it },
+                                onNavigateToCastHub = onNavigateToCastHub,
+                                modifier = Modifier.fillMaxWidth()
+                            )
+                            if (specs.isNotEmpty()) {
+                                RecommendGallery(
+                                    specs = specs,
+                                    navigateToPlaylist = navigateToPlaylist,
+                                    onPlayChannel = onPlayChannel,
+                                    onSpecChanged = { spec -> headlineSpec = spec },
+                                    modifier = Modifier.fillMaxWidth()
+                                )
+                            }
+                        }
+                    }
+                    PlaylistGallery(
+                        rowCount = actualRowCount,
+                        playlists = filteredPlaylists,
+                        subscribingPlaylistUrls = subscribingPlaylistUrls,
+                        refreshingEpgUrls = refreshingEpgUrls,
+                        onClick = navigateToPlaylist,
+                        onLongClick = { mediaSheetValue = MediaSheetValue.ForyouScreen(it) },
+                        header = composableOf(true, header),
+                        contentPadding = contentPadding,
+                        modifier = Modifier.fillMaxSize()
                     )
                 }
             }
         }
-        PlaylistGallery(
-            rowCount = actualRowCount,
-            playlists = filteredPlaylists,
-            subscribingPlaylistUrls = subscribingPlaylistUrls,
-            refreshingEpgUrls = refreshingEpgUrls,
-            onClick = navigateToPlaylist,
-            onLongClick = { mediaSheetValue = MediaSheetValue.ForyouScreen(it) },
-            header = composableOf(true, header),
-            contentPadding = contentPadding,
-            modifier = Modifier.fillMaxSize()
-        )
+
+        // V4 Source Switcher Bottom Sheet (Screenshot 5)
+        if (showSourceSwitcherSheet) {
+            V4SourceSwitcherBottomSheet(
+                playlists = playlists.keys.toList(),
+                activePlaylistUrl = activePlaylist?.url.orEmpty(),
+                onSelectSource = { activePlaylistUrl = it.url },
+                onAddSource = navigateToSettingPlaylistManagement,
+                onDismiss = { showSourceSwitcherSheet = false }
+            )
+        }
+
+        // V4 IPTV Sources Management Sheet (Screenshot 3)
+        if (showSourcesManagementSheet) {
+            V4IptvSourcesSheet(
+                playlists = playlists.keys.toList(),
+                activePlaylistUrl = activePlaylist?.url.orEmpty(),
+                onSelectSource = { activePlaylistUrl = it.url },
+                onRefreshSource = { p -> navigateToPlaylistConfiguration(p) },
+                onEditSource = navigateToPlaylistConfiguration,
+                onDeleteSource = { p -> onUnsubscribePlaylist(p.url) },
+                onAddSource = navigateToSettingPlaylistManagement,
+                onDismiss = { showSourcesManagementSheet = false }
+            )
+        }
+
         MediaSheet(
             value = mediaSheetValue,
             onUnsubscribePlaylist = {

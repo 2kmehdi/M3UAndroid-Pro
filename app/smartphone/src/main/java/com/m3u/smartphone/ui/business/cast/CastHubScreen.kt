@@ -695,39 +695,21 @@ private fun WebSnifferTab(
                 update = { webViewInstance = it },
                 modifier = Modifier.fillMaxSize()
             )
+        }
 
-            // Floating Sniffer Radar Pill
-            if (detectedStreams.isNotEmpty()) {
-                Surface(
-                    color = MaterialTheme.colorScheme.primary,
-                    shape = RoundedCornerShape(24.dp),
-                    shadowElevation = 8.dp,
-                    modifier = Modifier
-                        .align(Alignment.BottomEnd)
-                        .padding(16.dp)
-                        .clickable { showStreamSheet = true }
-                ) {
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        modifier = Modifier.padding(horizontal = 14.dp, vertical = 10.dp)
-                    ) {
-                        Icon(
-                            imageVector = Icons.Rounded.Radar,
-                            contentDescription = null,
-                            tint = MaterialTheme.colorScheme.onPrimary,
-                            modifier = Modifier.size(20.dp)
-                        )
-                        Spacer(modifier = Modifier.width(8.dp))
-                        Text(
-                            text = "${detectedStreams.size} Streams Sniffed",
-                            fontWeight = FontWeight.Bold,
-                            color = MaterialTheme.colorScheme.onPrimary,
-                            style = MaterialTheme.typography.labelMedium
-                        )
-                    }
+        // V4 Floating Sniffer Dock (Matching Screenshot 1)
+        com.m3u.smartphone.ui.business.cast.components.V4SnifferDock(
+            detectedStreams = detectedStreams,
+            onPlayStream = onPlayStream,
+            onCastStream = { stream ->
+                val target = devices.firstOrNull()
+                if (target != null) {
+                    onCastStream(stream, target)
+                } else {
+                    Toast.makeText(context, "No DLNA TV connected yet. Go to Screens tab to scan.", Toast.LENGTH_SHORT).show()
                 }
             }
-        }
+        )
     }
 
     // Sniffed Streams Bottom Sheet

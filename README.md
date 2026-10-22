@@ -8,8 +8,8 @@
   <a href="https://github.com/2kmehdi/M3UAndroid-Pro/releases/latest">
     <img src="https://img.shields.io/github/v/release/2kmehdi/M3UAndroid-Pro?color=7C4DFF&label=Latest%20Release&logo=github&style=for-the-badge" alt="Latest Release" />
   </a>
-  <a href="https://github.com/2kmehdi/M3UAndroid-Pro/releases/tag/v3.0.0">
-    <img src="https://img.shields.io/badge/Release-v3.0.0-00E676?style=for-the-badge&logo=android&logoColor=white" alt="Release v3.0.0" />
+  <a href="https://github.com/2kmehdi/M3UAndroid-Pro/releases/tag/v4.0.0">
+    <img src="https://img.shields.io/badge/Release-v4.0.0-00E676?style=for-the-badge&logo=android&logoColor=white" alt="Release v4.0.0" />
   </a>
   <a href="https://github.com/2kmehdi/M3UAndroid-Pro/actions">
     <img src="https://img.shields.io/github/actions/workflow/status/2kmehdi/M3UAndroid-Pro/build-release-apk.yml?label=Build%20Status&logo=githubactions&style=for-the-badge" alt="Build Status" />
@@ -36,12 +36,12 @@
 
 ---
 
-### 📥 Direct APK Downloads (v3.0.0 Pro)
+### 📥 Direct APK Downloads (v4.0.0 Pro)
 
 | Target Platform | Package Name | Direct Download |
 | :--- | :--- | :--- |
-| 📱 **Smartphone & Tablet** | `smartphone-debug.apk` | [⬇️ **Download Smartphone APK v3.0.0**](https://github.com/2kmehdi/M3UAndroid-Pro/releases/download/v3.0.0/smartphone-debug.apk) |
-| 📺 **Android TV / Fire TV** | `tv-debug.apk` | [⬇️ **Download Android TV APK v3.0.0**](https://github.com/2kmehdi/M3UAndroid-Pro/releases/download/v3.0.0/tv-debug.apk) |
+| 📱 **Smartphone & Tablet** | `smartphone-debug.apk` | [⬇️ **Download Smartphone APK v4.0.0**](https://github.com/2kmehdi/M3UAndroid-Pro/releases/download/v4.0.0/smartphone-debug.apk) |
+| 📺 **Android TV / Fire TV** | `tv-debug.apk` | [⬇️ **Download Android TV APK v4.0.0**](https://github.com/2kmehdi/M3UAndroid-Pro/releases/download/v4.0.0/tv-debug.apk) |
 
 👉 **[View All Releases & Mirrors on GitHub](https://github.com/2kmehdi/M3UAndroid-Pro/releases)**
 
@@ -49,16 +49,21 @@
 
 </div>
 
-## 🌟 What's New in V3.0 (Nebula Edition)?
+## 🌟 What's New in V4.0 (Quantum Edition)?
 
+- 🔄 **Top Source Bar & Quick IPTV Switcher**: Instant source identification with colored badge dots (`#00E5FF`, `#FF007F`, `#7C4DFF`), quick-swap `⇄` button, direct search, and one-tap access to your sources management center.
+- 🗂️ **"Which IPTV source to use?" Bottom Sheet**: Elegant frosted glass selector showing all connected playlists with source health badges, active checkmark `✓`, and single-tap `+ Add an IPTV source` action.
+- 📑 **Comprehensive "Your IPTV sources" Management Sheet**: Detailed inspection card for the active Xtream/M3U source displaying account status (`Active`), expiration date, max allowed simultaneous screens, animated synchronization progress meters, and quick actions (`Refresh`, `Edit`, `Hide categories`, `Delete`).
+- 📺 **Live TV Matrix & EPG Grid Switcher**: Horizontal category navigation with animated cyan glow underline, country flag badges, and floating bottom segmented switcher `[ Channels | Columns EPG | Grid EPG ]`.
+- 🎬 **Series & Movies VOD Carousels**: Netflix-style horizontal carousels for "Recently added", "Srs | multi-lang - latest", and animated shimmering skeleton placeholders for loading content.
+- 🛰️ **V4 In-App Sniffer Floating Dock**: Compact floating media bar docked over the browser featuring direct Play, quality/health ratings (`🟢 👍`, `🟡 ?`, `🔴 👎`), 1-tap TV DLNA Cast button, video thumbnail, format detection (`MP4: 1`), and options menu.
 - 🩺 **IPTV Stream Doctor & Health Analyzer**: Pre-flight test for ping latency, real-world chunk throughput (Mbps), anti-hotlinking detection, and HTTP status codes before playback.
 - 🎮 **Universal STB Remote 2.0**: Dual D-Pad Wheel & Swipe Trackpad modes with local network auto-scanner for Vision Forever, Sunplus, G-MScreen, and Enigma2 receivers.
 - ⚡ **Dynamic Buffer & Zero-Stutter LoadControl**: Instant 1.5s stream startup buffer with up to 60s preload depth to eliminate live sports buffering.
 - 🍏 **Apple iOS 18 Glassmorphism**: Frosted glass vibrancy, control center tiles, avatar profile switcher, and dark-mode luxury styling.
-- 🌐 **Web Sniffer 2.0 with Anti-Hotlink Injection**: Forward Referer, Origin, and User-Agent headers directly to ExoPlayer and DLNA casting to bypass 403 Forbidden server restrictions.
+- 🌐 **Web Sniffer with Anti-Hotlink Injection**: Forward Referer, Origin, and User-Agent headers directly to ExoPlayer and DLNA casting to bypass 403 Forbidden server restrictions.
 - ▶️ **Native YouTube Stream Resolver**: Dual-engine Innertube + Piped extractor resolves YouTube URLs and live feeds into direct MP4/HLS streams for ExoPlayer and DLNA Smart TVs.
 - 🛡️ **Zero-OOM Streaming M3U & Xtream Engine**: Fixed URL double-slash bug, sanitized credentials, and empowered the provider playback client with SSL TrustAll and extended timeouts.
-- 🎛️ **Live Profile & Category Filtering**: Real-time filtering by profiles (`👑 All Access`, `⚽ Live Sports`, `🍿 Cinema VOD`, `📺 TV Series`, `🧸 Family & Kids`) and categories (`⚡ All`, `📡 Live TV`, `🍿 Movies`, `🎞️ TV Shows`).
 - 📲 **Universal System Share Receiver**: Send links from Chrome, YouTube, TikTok, Telegram, WhatsApp, or VLC to M3UAndroid Pro for instant 1-tap DLNA casting.
 
 ## 🌟 Why M3UAndroid Pro?
