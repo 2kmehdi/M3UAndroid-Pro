@@ -100,15 +100,17 @@ class UniversalRemoteService @Inject constructor() {
      */
     suspend fun sendDlnaControl(device: Device, actionName: String, params: Map<String, String> = emptyMap()): Boolean = withContext(Dispatchers.IO) {
         try {
-            val service = device.findService("urn:schemas-upnp-org:service:AVTransport:1")
-                ?: device.findService("urn:schemas-upnp-org:service:RenderingControl:1")
-                ?: return@withContext false
-
-            val action = service.findAction(actionName) ?: return@withContext false
-            params.forEach { (key, value) ->
-                action.setArgument(key, value)
+            val action = device.findAction(actionName) ?: return@withContext false
+            val args = if (params.isEmpty()) {
+                mapOf("InstanceID" to "0")
+            } else {
+                params
             }
-            action.post()
+            action.invoke(
+                argumentValues = args,
+                onResult = {},
+                onError = {}
+            )
             true
         } catch (_: Exception) {
             false

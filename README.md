@@ -8,12 +8,8 @@
   <a href="https://github.com/2kmehdi/M3UAndroid-Pro/releases/latest">
     <img src="https://img.shields.io/github/v/release/2kmehdi/M3UAndroid-Pro?color=7C4DFF&label=Latest%20Release&logo=github&style=for-the-badge" alt="Latest Release" />
   </a>
-<p align="center">
-  <a href="https://github.com/2kmehdi/M3UAndroid-Pro/releases/latest">
-    <img src="https://img.shields.io/github/v/release/2kmehdi/M3UAndroid-Pro?color=7C4DFF&label=Latest%20Release&logo=github&style=for-the-badge" alt="Latest Release" />
-  </a>
-  <a href="https://github.com/2kmehdi/M3UAndroid-Pro/releases/tag/v2.1.0">
-    <img src="https://img.shields.io/badge/Release-v2.1.0-00E676?style=for-the-badge&logo=android&logoColor=white" alt="Release v2.1.0" />
+  <a href="https://github.com/2kmehdi/M3UAndroid-Pro/releases/tag/v2.2.0">
+    <img src="https://img.shields.io/badge/Release-v2.2.0-00E676?style=for-the-badge&logo=android&logoColor=white" alt="Release v2.2.0" />
   </a>
   <a href="https://github.com/2kmehdi/M3UAndroid-Pro/actions">
     <img src="https://img.shields.io/github/actions/workflow/status/2kmehdi/M3UAndroid-Pro/build-release-apk.yml?label=Build%20Status&logo=githubactions&style=for-the-badge" alt="Build Status" />
@@ -40,12 +36,12 @@
 
 ---
 
-### 📥 Direct APK Downloads (v2.1.0 Pro)
+### 📥 Direct APK Downloads (v2.2.0 Pro)
 
 | Target Platform | Package Name | Direct Download |
 | :--- | :--- | :--- |
-| 📱 **Smartphone & Tablet** | `smartphone-debug.apk` | [⬇️ **Download Smartphone APK v2.1.0**](https://github.com/2kmehdi/M3UAndroid-Pro/releases/download/v2.1.0/smartphone-debug.apk) |
-| 📺 **Android TV / Fire TV** | `tv-debug.apk` | [⬇️ **Download Android TV APK v2.1.0**](https://github.com/2kmehdi/M3UAndroid-Pro/releases/download/v2.1.0/tv-debug.apk) |
+| 📱 **Smartphone & Tablet** | `smartphone-debug.apk` | [⬇️ **Download Smartphone APK v2.2.0**](https://github.com/2kmehdi/M3UAndroid-Pro/releases/download/v2.2.0/smartphone-debug.apk) |
+| 📺 **Android TV / Fire TV** | `tv-debug.apk` | [⬇️ **Download Android TV APK v2.2.0**](https://github.com/2kmehdi/M3UAndroid-Pro/releases/download/v2.2.0/tv-debug.apk) |
 
 👉 **[View All Releases & Mirrors on GitHub](https://github.com/2kmehdi/M3UAndroid-Pro/releases)**
 
@@ -53,16 +49,14 @@
 
 </div>
 
-## 🌟 What's New in V2.1?
+## 🌟 What's New in V2.2?
 
-- 🍏 **Apple iOS Glass Style UI**: Redesigned home interface featuring frosted glassmorphism, translucent iOS Control Center tiles, glowing avatar orbs, and smooth segmented capsules.
+- 🎮 **Integrated STB / TV Remote Control**: Dedicated Vision Forever / G-MScreen / Enigma2 & DLNA remote pad with circular D-Pad, Volume/Channel rockers, numeric keypad (0-9), EPG, Menu, and media keys.
+- 🍏 **Apple iOS / Zen Player Glass Style**: Frosted glassmorphism, translucent Control Center action tiles, avatar orbs, and smooth segmented capsules.
 - ▶️ **Native YouTube Stream Resolver**: Dual-engine Innertube + Piped extractor resolves YouTube URLs and live feeds into direct MP4/HLS streams for ExoPlayer and DLNA Smart TVs.
-- 🛡️ **Xtream Codes & M3U Super Resilience**: Fixed URL double-slash bug, sanitized credentials, and empowered the provider playback client with SSL TrustAll and extended timeouts.
+- 🛡️ **Zero-OOM Streaming M3U & Xtream Engine**: Fixed URL double-slash bug, sanitized credentials, and empowered the provider playback client with SSL TrustAll and extended timeouts.
 - 🎛️ **Live Profile & Category Filtering**: Real-time filtering by profiles (`👑 All Access`, `⚽ Live Sports`, `🍿 Cinema VOD`, `📺 TV Series`, `🧸 Family & Kids`) and categories (`⚡ All`, `📡 Live TV`, `🍿 Movies`, `🎞️ TV Shows`).
 - 📲 **Universal System Share Receiver**: Send links from Chrome, YouTube, TikTok, Telegram, WhatsApp, or VLC to M3UAndroid Pro for instant 1-tap DLNA casting.
-- 🛡️ **Xtream Codes & M3U Super Resilience**: Integrated 120s extended timeouts, smart URL normalization, and IPTV Smarters / ExoPlayer User-Agent spoofing to bypass 403 Forbidden errors.
-- ⚡ **Segmented Content Categories**: Instant top-level filtering for **Live TV**, **Movies**, and **TV Shows / Series**.
-- 🌐 **Web Sniffer Pro**: Enhanced detection of live streams (`.m3u8`, `.mpd`, `.mp4`, `.ts`, `.flv`) with direct casting to Smart TVs.
 
 ## 🌟 Why M3UAndroid Pro?
 
