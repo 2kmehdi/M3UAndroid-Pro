@@ -37,7 +37,16 @@ jobs:
 
       - name: Build Smartphone and TV APKs
         run: |
-          ./gradlew :app:smartphone:assembleDebug :app:tv:assembleDebug --stacktrace --no-daemon
+          set -o pipefail
+          ./gradlew :app:smartphone:assembleDebug :app:tv:assembleDebug --stacktrace --no-daemon 2>&1 | tee build.log
+
+      - name: Record Diagnostic on Failure
+        if: failure()
+        run: |
+          echo "## Build Failure Diagnostic" >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+          tail -n 120 build.log >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
 
       - name: Collect APKs
         run: |

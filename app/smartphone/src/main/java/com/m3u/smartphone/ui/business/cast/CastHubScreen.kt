@@ -220,6 +220,7 @@ fun CastHubRoute(
                         }
                     }
                 }
+            )
             Tab(
                 selected = selectedTab == 3,
                 onClick = { viewModel.selectTab(3) },
