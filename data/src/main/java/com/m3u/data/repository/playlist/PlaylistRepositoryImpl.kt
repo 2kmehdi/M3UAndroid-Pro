@@ -303,7 +303,10 @@ internal class PlaylistRepositoryImpl @Inject constructor(
         type: String?,
         callback: (count: Int) -> Unit
     ): Unit = PlaylistDataMaintenanceCoordinator.withExclusive {
-        val input = XtreamInput(basicUrl, username, password, type)
+        val cleanBasicUrl = basicUrl.trim().trimEnd('/')
+        val cleanUsername = username.trim()
+        val cleanPassword = password.trim()
+        val input = XtreamInput(cleanBasicUrl, cleanUsername, cleanPassword, type)
         val (
             liveCategories,
             vodCategories,
@@ -1445,8 +1448,12 @@ internal class PlaylistRepositoryImpl @Inject constructor(
     }
 
     private fun openNetworkInput(url: String): InputStream {
+        val cleanUrl = url.trim()
         val request = Request.Builder()
-            .url(url)
+            .url(cleanUrl)
+            .header("User-Agent", "IPTVSmartersPro/3.1.5.1 (Linux; Android 14) ExoPlayerLib/2.19.1")
+            .header("Accept", "*/*")
+            .header("Connection", "keep-alive")
             .build()
         val response = okHttpClient.newCall(request).execute()
         if (!response.isSuccessful) {

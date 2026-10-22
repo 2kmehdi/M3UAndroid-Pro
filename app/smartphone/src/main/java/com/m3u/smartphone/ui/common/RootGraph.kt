@@ -24,6 +24,7 @@ fun NavGraphBuilder.rootGraph(
     navigateToPlaylistConfiguration: (Playlist) -> Unit,
     showBottomEdgeBlur: Boolean,
     onNestedDetailVisibilityChanged: (Boolean) -> Unit,
+    navigateToCastHub: () -> Unit = {},
 ) {
     composable(
         route = Destination.Foryou.name,
@@ -36,6 +37,7 @@ fun NavGraphBuilder.rootGraph(
             navigateToSettingPlaylistManagement = navigateToSettingPlaylistManagement,
             navigateToPlaylistConfiguration = navigateToPlaylistConfiguration,
             contentPadding = contentPadding,
+            navigateToCastHub = navigateToCastHub,
             modifier = Modifier
                 .fillMaxSize()
                 .then(

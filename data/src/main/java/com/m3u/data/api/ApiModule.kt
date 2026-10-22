@@ -58,20 +58,23 @@ internal object ApiModule {
     @OkhttpClient(false)
     fun provideOkhttpClient(): OkHttpClient {
         return OkHttpClient.Builder()
+            .connectTimeout(45, java.util.concurrent.TimeUnit.SECONDS)
+            .readTimeout(120, java.util.concurrent.TimeUnit.SECONDS)
+            .writeTimeout(60, java.util.concurrent.TimeUnit.SECONDS)
+            .followRedirects(true)
+            .followSslRedirects(true)
             .authenticator(Authenticator.JAVA_NET_AUTHENTICATOR)
             .addInterceptor { chain ->
-                val request = chain.request()
-                try {
-                    chain.proceed(request)
-                } catch (e: Exception) {
-                    Response.Builder()
-                        .request(request)
-                        .protocol(Protocol.HTTP_1_1)
-                        .code(999)
-                        .message(e.message.orEmpty())
-                        .body("{${e}}".toResponseBody())
-                        .build()
+                val original = chain.request()
+                val requestBuilder = original.newBuilder()
+                if (original.header("User-Agent") == null) {
+                    requestBuilder.header("User-Agent", "IPTVSmartersPro/3.1.5.1 (Linux; Android 14) ExoPlayerLib/2.19.1")
                 }
+                if (original.header("Accept") == null) {
+                    requestBuilder.header("Accept", "*/*")
+                }
+                val request = requestBuilder.build()
+                chain.proceed(request)
             }
             .sslSocketFactory(SSLs.TLSTrustAll.socketFactory, Certs.TrustAll)
             .hostnameVerifier { _, _ -> true }

@@ -62,6 +62,9 @@ fun AppNavHost(
             },
             showBottomEdgeBlur = showBottomEdgeBlur,
             onNestedDetailVisibilityChanged = onNestedDetailVisibilityChanged,
+            navigateToCastHub = {
+                navigateToDestination(Destination.Cast)
+            },
         )
         playlistScreen(
             navigateToChannel = {

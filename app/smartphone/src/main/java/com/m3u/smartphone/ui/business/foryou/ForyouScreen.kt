@@ -3,6 +3,7 @@ package com.m3u.smartphone.ui.business.foryou
 import android.content.res.Configuration.ORIENTATION_PORTRAIT
 import android.view.KeyEvent
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -48,6 +49,7 @@ import com.m3u.data.service.MediaCommand
 import com.m3u.i18n.R.string
 import com.m3u.smartphone.ui.business.foryou.components.HeadlineBackground
 import com.m3u.smartphone.ui.business.foryou.components.PlaylistGallery
+import com.m3u.smartphone.ui.business.foryou.components.ProIptvHeader
 import com.m3u.smartphone.ui.business.foryou.components.recommend.RecommendGallery
 import com.m3u.smartphone.ui.common.helper.Action
 import com.m3u.smartphone.ui.common.helper.LocalHelper
@@ -69,7 +71,8 @@ fun ForyouRoute(
     navigateToSettingPlaylistManagement: () -> Unit,
     contentPadding: PaddingValues,
     modifier: Modifier = Modifier,
-    viewModel: ForyouViewModel = hiltViewModel()
+    viewModel: ForyouViewModel = hiltViewModel(),
+    navigateToCastHub: () -> Unit = {}
 ) {
     val helper = LocalHelper.current
     val coroutineScope = rememberCoroutineScope()
@@ -131,6 +134,7 @@ fun ForyouRoute(
             },
             navigateToPlaylistConfiguration = navigateToPlaylistConfiguration,
             onUnsubscribePlaylist = viewModel::onUnsubscribePlaylist,
+            onNavigateToCastHub = navigateToCastHub,
             modifier = Modifier
                 .fillMaxSize()
                 .thenIf(godMode) {
@@ -177,6 +181,7 @@ private fun ForyouScreen(
     onPlayChannel: (Channel) -> Unit,
     navigateToPlaylistConfiguration: (Playlist) -> Unit,
     onUnsubscribePlaylist: (playlistUrl: String) -> Unit,
+    onNavigateToCastHub: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     val configuration = LocalConfiguration.current
@@ -210,13 +215,22 @@ private fun ForyouScreen(
     Box(modifier) {
         HeadlineBackground()
         val header = @Composable {
-            RecommendGallery(
-                specs = specs,
-                navigateToPlaylist = navigateToPlaylist,
-                onPlayChannel = onPlayChannel,
-                onSpecChanged = { spec -> headlineSpec = spec },
-                modifier = Modifier.fillMaxWidth()
-            )
+            Column(modifier = Modifier.fillMaxWidth()) {
+                ProIptvHeader(
+                    totalPlaylists = playlists.size,
+                    onNavigateToCastHub = onNavigateToCastHub,
+                    modifier = Modifier.fillMaxWidth()
+                )
+                if (specs.isNotEmpty()) {
+                    RecommendGallery(
+                        specs = specs,
+                        navigateToPlaylist = navigateToPlaylist,
+                        onPlayChannel = onPlayChannel,
+                        onSpecChanged = { spec -> headlineSpec = spec },
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                }
+            }
         }
         PlaylistGallery(
             rowCount = actualRowCount,
@@ -225,7 +239,7 @@ private fun ForyouScreen(
             refreshingEpgUrls = refreshingEpgUrls,
             onClick = navigateToPlaylist,
             onLongClick = { mediaSheetValue = MediaSheetValue.ForyouScreen(it) },
-            header = composableOf(specs.isNotEmpty(), header),
+            header = composableOf(true, header),
             contentPadding = contentPadding,
             modifier = Modifier.fillMaxSize()
         )

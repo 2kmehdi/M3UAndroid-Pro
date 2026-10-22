@@ -54,6 +54,16 @@ class CastHubViewModel @Inject constructor(
     init {
         // Automatically start searching for DLNA screens on the local network
         startSearch()
+
+        viewModelScope.launch {
+            SharedLinkManager.incomingSharedUrl.collect { sharedUrl ->
+                sharedUrl?.let { url ->
+                    setQuickCastUrl(url)
+                    _selectedTab.value = 0
+                    startSearch()
+                }
+            }
+        }
     }
 
     fun selectTab(tabIndex: Int) {

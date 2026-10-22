@@ -208,6 +208,15 @@ private fun AppImpl(
     LaunchedEffect(showBottomNavigation, bottomNavigationVisibility) {
         bottomNavigationVisibility.targetState = showBottomNavigation
     }
+    LaunchedEffect(Unit) {
+        com.m3u.smartphone.ui.business.cast.SharedLinkManager.incomingSharedUrl.collect { url ->
+            if (!url.isNullOrBlank()) {
+                navController.navigate(Destination.Cast.name) {
+                    launchSingleTop = true
+                }
+            }
+        }
+    }
     val supportsBackdropEffects = Build.VERSION.SDK_INT >= Build.VERSION_CODES.S
     val captureNavigationBackdrop = shouldCaptureNavigationBackdrop(
         mode = navigationMode,
