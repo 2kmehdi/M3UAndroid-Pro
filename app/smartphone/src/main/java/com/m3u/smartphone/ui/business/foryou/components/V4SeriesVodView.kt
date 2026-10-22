@@ -128,7 +128,7 @@ private fun VodSectionRow(
                 channels.forEach { ch ->
                     VodPosterCard(
                         title = ch.title,
-                        posterUrl = ch.cover ?: ch.logo,
+                        posterUrl = ch.cover,
                         onClick = { onItemClick(ch) }
                     )
                 }

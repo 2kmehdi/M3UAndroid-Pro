@@ -156,7 +156,7 @@ fun V4LiveTvAndEpgView(
                     items(filteredChannels) { channel ->
                         V4ChannelRowItem(
                             title = channel.title,
-                            logoUrl = channel.logo,
+                            logoUrl = channel.cover,
                             onClick = { onChannelClick(channel) }
                         )
                     }
