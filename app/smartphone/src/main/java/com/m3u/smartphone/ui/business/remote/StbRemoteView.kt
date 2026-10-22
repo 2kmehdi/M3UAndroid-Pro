@@ -51,6 +51,14 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.foundation.gestures.detectDragGestures
+import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.material.icons.rounded.Search
+import androidx.compose.material.icons.rounded.TouchApp
+import androidx.compose.material.icons.rounded.SportsEsports
+import androidx.compose.material3.LinearProgressIndicator
+import androidx.compose.ui.input.pointer.pointerInput
+import com.m3u.data.service.DiscoveredStb
 import com.m3u.data.service.StbKeyCode
 
 /**
@@ -60,9 +68,16 @@ import com.m3u.data.service.StbKeyCode
 fun StbRemoteView(
     onSendKey: (StbKeyCode) -> Unit,
     activeDeviceName: String = "DLNA Smart TV",
+    targetIp: String = "",
+    onTargetIpChange: (String) -> Unit = {},
+    discoveredStbs: List<DiscoveredStb> = emptyList(),
+    isScanningStbs: Boolean = false,
+    onScanStbs: () -> Unit = {},
     modifier: Modifier = Modifier
 ) {
     var showNumpad by remember { mutableStateOf(false) }
+    var isTouchpadMode by remember { mutableStateOf(false) }
+    var showStbScanner by remember { mutableStateOf(false) }
 
     val glassCardBg = Brush.verticalGradient(
         listOf(
@@ -106,6 +121,7 @@ fun StbRemoteView(
                     .clip(RoundedCornerShape(16.dp))
                     .background(Color.White.copy(alpha = 0.08f))
                     .border(1.dp, Color.White.copy(alpha = 0.12f), RoundedCornerShape(16.dp))
+                    .clickable { showStbScanner = !showStbScanner }
                     .padding(horizontal = 14.dp, vertical = 6.dp)
             ) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
@@ -117,7 +133,7 @@ fun StbRemoteView(
                     )
                     Spacer(modifier = Modifier.width(8.dp))
                     Text(
-                        text = activeDeviceName,
+                        text = if (targetIp.isNotBlank()) "STB: $targetIp" else activeDeviceName,
                         style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.SemiBold),
                         maxLines = 1
                     )
@@ -133,87 +149,260 @@ fun StbRemoteView(
             )
         }
 
-        Spacer(modifier = Modifier.height(20.dp))
+        // --- LAN STB SCANNER ACCORDION ---
+        AnimatedVisibility(visible = showStbScanner) {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 12.dp)
+                    .clip(RoundedCornerShape(16.dp))
+                    .background(Color.White.copy(alpha = 0.05f))
+                    .border(1.dp, Color.White.copy(alpha = 0.1f), RoundedCornerShape(16.dp))
+                    .padding(12.dp)
+            ) {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text(
+                        text = "📡 STB Network Receivers",
+                        style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Bold),
+                        color = Color.White
+                    )
+                    Box(
+                        contentAlignment = Alignment.Center,
+                        modifier = Modifier
+                            .clip(RoundedCornerShape(10.dp))
+                            .background(Color(0xFF0A84FF).copy(alpha = 0.2f))
+                            .border(1.dp, Color(0xFF0A84FF), RoundedCornerShape(10.dp))
+                            .clickable { onScanStbs() }
+                            .padding(horizontal = 10.dp, vertical = 4.dp)
+                    ) {
+                        Text(
+                            text = if (isScanningStbs) "Scanning..." else "🔍 Scan LAN",
+                            style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.Bold),
+                            color = Color(0xFF64D2FF)
+                        )
+                    }
+                }
+                if (isScanningStbs) {
+                    Spacer(modifier = Modifier.height(8.dp))
+                    LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
+                }
+                if (discoveredStbs.isNotEmpty()) {
+                    Spacer(modifier = Modifier.height(8.dp))
+                    discoveredStbs.forEach { stb ->
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(vertical = 4.dp)
+                                .clip(RoundedCornerShape(8.dp))
+                                .background(Color.White.copy(alpha = 0.06f))
+                                .clickable { onTargetIpChange(stb.ip) }
+                                .padding(8.dp)
+                        ) {
+                            Text(
+                                text = "📺 ${stb.name} (${stb.protocol})",
+                                style = MaterialTheme.typography.bodySmall,
+                                color = Color.White,
+                                modifier = Modifier.weight(1f)
+                            )
+                            if (targetIp == stb.ip) {
+                                Text("CONNECTED", color = Color(0xFF30D158), fontSize = 10.sp, fontWeight = FontWeight.Bold)
+                            }
+                        }
+                    }
+                }
+            }
+        }
 
-        // --- 2. APPLE-STYLE CIRCULAR D-PAD CONTROLLER ---
-        Box(
-            contentAlignment = Alignment.Center,
+        Spacer(modifier = Modifier.height(14.dp))
+
+        // --- MODE TOGGLE: D-PAD vs TOUCHPAD ---
+        Row(
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
             modifier = Modifier
-                .size(200.dp)
-                .clip(CircleShape)
+                .clip(RoundedCornerShape(20.dp))
                 .background(Color.White.copy(alpha = 0.06f))
-                .border(1.5.dp, Color.White.copy(alpha = 0.15f), CircleShape)
+                .border(1.dp, Color.White.copy(alpha = 0.12f), RoundedCornerShape(20.dp))
+                .padding(4.dp)
         ) {
-            // UP
-            Icon(
-                imageVector = Icons.Rounded.KeyboardArrowUp,
-                contentDescription = "Up",
-                tint = Color.White.copy(alpha = 0.9f),
-                modifier = Modifier
-                    .align(Alignment.TopCenter)
-                    .padding(top = 10.dp)
-                    .size(40.dp)
-                    .clip(CircleShape)
-                    .clickable { onSendKey(StbKeyCode.UP) }
-            )
-            // DOWN
-            Icon(
-                imageVector = Icons.Rounded.KeyboardArrowDown,
-                contentDescription = "Down",
-                tint = Color.White.copy(alpha = 0.9f),
-                modifier = Modifier
-                    .align(Alignment.BottomCenter)
-                    .padding(bottom = 10.dp)
-                    .size(40.dp)
-                    .clip(CircleShape)
-                    .clickable { onSendKey(StbKeyCode.DOWN) }
-            )
-            // LEFT
-            Icon(
-                imageVector = Icons.Rounded.KeyboardArrowLeft,
-                contentDescription = "Left",
-                tint = Color.White.copy(alpha = 0.9f),
-                modifier = Modifier
-                    .align(Alignment.CenterStart)
-                    .padding(start = 10.dp)
-                    .size(40.dp)
-                    .clip(CircleShape)
-                    .clickable { onSendKey(StbKeyCode.LEFT) }
-            )
-            // RIGHT
-            Icon(
-                imageVector = Icons.Rounded.KeyboardArrowRight,
-                contentDescription = "Right",
-                tint = Color.White.copy(alpha = 0.9f),
-                modifier = Modifier
-                    .align(Alignment.CenterEnd)
-                    .padding(end = 10.dp)
-                    .size(40.dp)
-                    .clip(CircleShape)
-                    .clickable { onSendKey(StbKeyCode.RIGHT) }
-            )
-
-            // CENTER OK BUTTON
             Box(
                 contentAlignment = Alignment.Center,
                 modifier = Modifier
-                    .size(76.dp)
-                    .clip(CircleShape)
-                    .background(
-                        Brush.linearGradient(
-                            listOf(Color(0xFF0A84FF), Color(0xFF0051C6))
-                        )
-                    )
-                    .clickable { onSendKey(StbKeyCode.OK) }
+                    .clip(RoundedCornerShape(16.dp))
+                    .background(if (!isTouchpadMode) Color(0xFF0A84FF) else Color.Transparent)
+                    .clickable { isTouchpadMode = false }
+                    .padding(horizontal = 14.dp, vertical = 6.dp)
             ) {
                 Text(
-                    text = "OK",
-                    style = MaterialTheme.typography.titleMedium.copy(
-                        fontWeight = FontWeight.ExtraBold,
-                        letterSpacing = 1.sp
-                    ),
-                    color = Color.White
+                    text = "🎮 Circular Wheel",
+                    style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.Bold),
+                    color = if (!isTouchpadMode) Color.White else Color.White.copy(alpha = 0.6f)
                 )
+            }
+            Box(
+                contentAlignment = Alignment.Center,
+                modifier = Modifier
+                    .clip(RoundedCornerShape(16.dp))
+                    .background(if (isTouchpadMode) Color(0xFF0A84FF) else Color.Transparent)
+                    .clickable { isTouchpadMode = true }
+                    .padding(horizontal = 14.dp, vertical = 6.dp)
+            ) {
+                Text(
+                    text = "👆 Swipe Trackpad",
+                    style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.Bold),
+                    color = if (isTouchpadMode) Color.White else Color.White.copy(alpha = 0.6f)
+                )
+            }
+        }
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        // --- 2. CONTROLLER (D-PAD OR TRACKPAD) ---
+        if (isTouchpadMode) {
+            // Apple TV-style Glass Trackpad
+            Box(
+                contentAlignment = Alignment.Center,
+                modifier = Modifier
+                    .size(210.dp)
+                    .clip(RoundedCornerShape(32.dp))
+                    .background(Color.White.copy(alpha = 0.05f))
+                    .border(1.5.dp, Color.White.copy(alpha = 0.16f), RoundedCornerShape(32.dp))
+                    .pointerInput(Unit) {
+                        detectTapGestures(
+                            onTap = { onSendKey(StbKeyCode.OK) }
+                        )
+                    }
+                    .pointerInput(Unit) {
+                        var totalDragX = 0f
+                        var totalDragY = 0f
+                        detectDragGestures(
+                            onDrag = { change, dragAmount ->
+                                change.consume()
+                                totalDragX += dragAmount.x
+                                totalDragY += dragAmount.y
+                                if (totalDragX > 50f) {
+                                    onSendKey(StbKeyCode.RIGHT)
+                                    totalDragX = 0f
+                                } else if (totalDragX < -50f) {
+                                    onSendKey(StbKeyCode.LEFT)
+                                    totalDragX = 0f
+                                }
+                                if (totalDragY > 50f) {
+                                    onSendKey(StbKeyCode.DOWN)
+                                    totalDragY = 0f
+                                } else if (totalDragY < -50f) {
+                                    onSendKey(StbKeyCode.UP)
+                                    totalDragY = 0f
+                                }
+                            },
+                            onDragEnd = {
+                                totalDragX = 0f
+                                totalDragY = 0f
+                            }
+                        )
+                    }
+            ) {
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                    Icon(
+                        imageVector = Icons.Rounded.TouchApp,
+                        contentDescription = null,
+                        tint = Color.White.copy(alpha = 0.4f),
+                        modifier = Modifier.size(36.dp)
+                    )
+                    Spacer(modifier = Modifier.height(6.dp))
+                    Text(
+                        text = "Swipe to Navigate\nTap to Select (OK)",
+                        style = MaterialTheme.typography.labelSmall,
+                        color = Color.White.copy(alpha = 0.5f),
+                        textAlign = androidx.compose.ui.text.style.TextAlign.Center
+                    )
+                }
+            }
+        } else {
+            // Circular D-Pad Controller
+            Box(
+                contentAlignment = Alignment.Center,
+                modifier = Modifier
+                    .size(200.dp)
+                    .clip(CircleShape)
+                    .background(Color.White.copy(alpha = 0.06f))
+                    .border(1.5.dp, Color.White.copy(alpha = 0.15f), CircleShape)
+            ) {
+                // UP
+                Icon(
+                    imageVector = Icons.Rounded.KeyboardArrowUp,
+                    contentDescription = "Up",
+                    tint = Color.White.copy(alpha = 0.9f),
+                    modifier = Modifier
+                        .align(Alignment.TopCenter)
+                        .padding(top = 10.dp)
+                        .size(40.dp)
+                        .clip(CircleShape)
+                        .clickable { onSendKey(StbKeyCode.UP) }
+                )
+                // DOWN
+                Icon(
+                    imageVector = Icons.Rounded.KeyboardArrowDown,
+                    contentDescription = "Down",
+                    tint = Color.White.copy(alpha = 0.9f),
+                    modifier = Modifier
+                        .align(Alignment.BottomCenter)
+                        .padding(bottom = 10.dp)
+                        .size(40.dp)
+                        .clip(CircleShape)
+                        .clickable { onSendKey(StbKeyCode.DOWN) }
+                )
+                // LEFT
+                Icon(
+                    imageVector = Icons.Rounded.KeyboardArrowLeft,
+                    contentDescription = "Left",
+                    tint = Color.White.copy(alpha = 0.9f),
+                    modifier = Modifier
+                        .align(Alignment.CenterStart)
+                        .padding(start = 10.dp)
+                        .size(40.dp)
+                        .clip(CircleShape)
+                        .clickable { onSendKey(StbKeyCode.LEFT) }
+                )
+                // RIGHT
+                Icon(
+                    imageVector = Icons.Rounded.KeyboardArrowRight,
+                    contentDescription = "Right",
+                    tint = Color.White.copy(alpha = 0.9f),
+                    modifier = Modifier
+                        .align(Alignment.CenterEnd)
+                        .padding(end = 10.dp)
+                        .size(40.dp)
+                        .clip(CircleShape)
+                        .clickable { onSendKey(StbKeyCode.RIGHT) }
+                )
+
+                // CENTER OK BUTTON
+                Box(
+                    contentAlignment = Alignment.Center,
+                    modifier = Modifier
+                        .size(76.dp)
+                        .clip(CircleShape)
+                        .background(
+                            Brush.linearGradient(
+                                listOf(Color(0xFF0A84FF), Color(0xFF0051C6))
+                            )
+                        )
+                        .clickable { onSendKey(StbKeyCode.OK) }
+                ) {
+                    Text(
+                        text = "OK",
+                        style = MaterialTheme.typography.titleMedium.copy(
+                            fontWeight = FontWeight.ExtraBold,
+                            letterSpacing = 1.sp
+                        ),
+                        color = Color.White
+                    )
+                }
             }
         }
 

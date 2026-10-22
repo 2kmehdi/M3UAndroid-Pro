@@ -246,9 +246,11 @@ fun ProIptvHeader(
 
                 Spacer(modifier = Modifier.height(14.dp))
 
-                // Three iOS Control Center-style Frosted Tiles
+                // iOS Control Center-style Frosted Tiles
                 Row(
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .horizontalScroll(rememberScrollState()),
                     horizontalArrangement = Arrangement.spacedBy(10.dp)
                 ) {
                     IosGlassTile(
@@ -256,7 +258,7 @@ fun ProIptvHeader(
                         subtitle = "Instant URL",
                         icon = Icons.Rounded.Bolt,
                         accentColor = Color(0xFFFF9500),
-                        modifier = Modifier.weight(1f),
+                        modifier = Modifier.width(112.dp),
                         onClick = onNavigateToCastHub
                     )
                     IosGlassTile(
@@ -264,7 +266,7 @@ fun ProIptvHeader(
                         subtitle = "Auto Extract",
                         icon = Icons.Rounded.Language,
                         accentColor = Color(0xFF007AFF),
-                        modifier = Modifier.weight(1f),
+                        modifier = Modifier.width(112.dp),
                         onClick = onNavigateToCastHub
                     )
                     IosGlassTile(
@@ -272,7 +274,15 @@ fun ProIptvHeader(
                         subtitle = "Smart TVs",
                         icon = Icons.Rounded.Radar,
                         accentColor = Color(0xFF34C759),
-                        modifier = Modifier.weight(1f),
+                        modifier = Modifier.width(112.dp),
+                        onClick = onNavigateToCastHub
+                    )
+                    IosGlassTile(
+                        title = "Stream Doctor",
+                        subtitle = "Health Check",
+                        icon = Icons.Rounded.Bolt,
+                        accentColor = Color(0xFFAF52DE),
+                        modifier = Modifier.width(112.dp),
                         onClick = onNavigateToCastHub
                     )
                 }

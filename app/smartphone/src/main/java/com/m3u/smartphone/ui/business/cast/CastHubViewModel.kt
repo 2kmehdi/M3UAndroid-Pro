@@ -9,9 +9,12 @@ import com.m3u.data.api.OkhttpClient
 import com.m3u.data.database.dao.ChannelDao
 import com.m3u.data.database.model.Channel
 import com.m3u.data.repository.channel.ChannelRepository
+import com.m3u.data.service.DiscoveredStb
 import com.m3u.data.service.MediaCommand
 import com.m3u.data.service.PlayerManager
 import com.m3u.data.service.StbKeyCode
+import com.m3u.data.service.StreamDoctorService
+import com.m3u.data.service.StreamHealthReport
 import com.m3u.data.service.UniversalRemoteService
 import com.m3u.data.service.YouTubeStreamResolver
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -32,6 +35,7 @@ class CastHubViewModel @Inject constructor(
     private val channelDao: ChannelDao,
     private val playerManager: PlayerManager,
     private val universalRemoteService: UniversalRemoteService,
+    private val streamDoctorService: StreamDoctorService,
     @OkhttpClient(false) private val okHttpClient: OkHttpClient
 ) : ViewModel() {
 
@@ -41,7 +45,7 @@ class CastHubViewModel @Inject constructor(
     val searching: StateFlow<Boolean> = dlnaController.searching
     val castState: StateFlow<DlnaCastState> = dlnaController.castState
 
-    // 0 = Quick Cast, 1 = Web Sniffer Browser, 2 = DLNA Devices
+    // 0 = Quick Cast, 1 = Web Sniffer Browser, 2 = DLNA Devices, 3 = STB Remote, 4 = Stream Doctor
     private val _selectedTab = MutableStateFlow(0)
     val selectedTab = _selectedTab.asStateFlow()
 
@@ -59,6 +63,25 @@ class CastHubViewModel @Inject constructor(
 
     private val _selectedDeviceForCast = MutableStateFlow<Device?>(null)
     val selectedDeviceForCast = _selectedDeviceForCast.asStateFlow()
+
+    // --- V3 Tool Suite States ---
+    private val _streamHealthReport = MutableStateFlow<StreamHealthReport?>(null)
+    val streamHealthReport = _streamHealthReport.asStateFlow()
+
+    private val _isDiagnosingStream = MutableStateFlow(false)
+    val isDiagnosingStream = _isDiagnosingStream.asStateFlow()
+
+    private val _discoveredStbs = MutableStateFlow<List<DiscoveredStb>>(emptyList())
+    val discoveredStbs = _discoveredStbs.asStateFlow()
+
+    private val _isScanningStbs = MutableStateFlow(false)
+    val isScanningStbs = _isScanningStbs.asStateFlow()
+
+    private val _antiHotlinkReferer = MutableStateFlow("")
+    val antiHotlinkReferer = _antiHotlinkReferer.asStateFlow()
+
+    private val _adBlockEnabled = MutableStateFlow(true)
+    val adBlockEnabled = _adBlockEnabled.asStateFlow()
 
     init {
         // Automatically start searching for DLNA screens on the local network
@@ -226,6 +249,39 @@ class CastHubViewModel @Inject constructor(
                 universalRemoteService.sendUdpKey(targetIp, port = 9876, key = key)
             }
         }
+    }
+
+    fun runStreamDoctor(url: String) {
+        val target = url.ifBlank { _quickCastUrl.value }.trim()
+        if (target.isBlank()) return
+        viewModelScope.launch {
+            _isDiagnosingStream.value = true
+            val headers = mutableMapOf<String, String>()
+            if (_antiHotlinkReferer.value.isNotBlank()) {
+                headers["Referer"] = _antiHotlinkReferer.value
+                headers["Origin"] = _antiHotlinkReferer.value
+            }
+            val report = streamDoctorService.diagnoseStream(target, headers)
+            _streamHealthReport.value = report
+            _isDiagnosingStream.value = false
+        }
+    }
+
+    fun scanNetworkStbs() {
+        viewModelScope.launch {
+            _isScanningStbs.value = true
+            val stbs = universalRemoteService.scanLocalStbs()
+            _discoveredStbs.value = stbs
+            _isScanningStbs.value = false
+        }
+    }
+
+    fun setAntiHotlinkReferer(referer: String) {
+        _antiHotlinkReferer.value = referer.trim()
+    }
+
+    fun toggleAdBlock(enabled: Boolean) {
+        _adBlockEnabled.value = enabled
     }
 
     override fun onCleared() {

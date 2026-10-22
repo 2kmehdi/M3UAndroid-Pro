@@ -8,8 +8,8 @@
   <a href="https://github.com/2kmehdi/M3UAndroid-Pro/releases/latest">
     <img src="https://img.shields.io/github/v/release/2kmehdi/M3UAndroid-Pro?color=7C4DFF&label=Latest%20Release&logo=github&style=for-the-badge" alt="Latest Release" />
   </a>
-  <a href="https://github.com/2kmehdi/M3UAndroid-Pro/releases/tag/v2.2.0">
-    <img src="https://img.shields.io/badge/Release-v2.2.0-00E676?style=for-the-badge&logo=android&logoColor=white" alt="Release v2.2.0" />
+  <a href="https://github.com/2kmehdi/M3UAndroid-Pro/releases/tag/v3.0.0">
+    <img src="https://img.shields.io/badge/Release-v3.0.0-00E676?style=for-the-badge&logo=android&logoColor=white" alt="Release v3.0.0" />
   </a>
   <a href="https://github.com/2kmehdi/M3UAndroid-Pro/actions">
     <img src="https://img.shields.io/github/actions/workflow/status/2kmehdi/M3UAndroid-Pro/build-release-apk.yml?label=Build%20Status&logo=githubactions&style=for-the-badge" alt="Build Status" />
@@ -36,12 +36,12 @@
 
 ---
 
-### 📥 Direct APK Downloads (v2.2.0 Pro)
+### 📥 Direct APK Downloads (v3.0.0 Pro)
 
 | Target Platform | Package Name | Direct Download |
 | :--- | :--- | :--- |
-| 📱 **Smartphone & Tablet** | `smartphone-debug.apk` | [⬇️ **Download Smartphone APK v2.2.0**](https://github.com/2kmehdi/M3UAndroid-Pro/releases/download/v2.2.0/smartphone-debug.apk) |
-| 📺 **Android TV / Fire TV** | `tv-debug.apk` | [⬇️ **Download Android TV APK v2.2.0**](https://github.com/2kmehdi/M3UAndroid-Pro/releases/download/v2.2.0/tv-debug.apk) |
+| 📱 **Smartphone & Tablet** | `smartphone-debug.apk` | [⬇️ **Download Smartphone APK v3.0.0**](https://github.com/2kmehdi/M3UAndroid-Pro/releases/download/v3.0.0/smartphone-debug.apk) |
+| 📺 **Android TV / Fire TV** | `tv-debug.apk` | [⬇️ **Download Android TV APK v3.0.0**](https://github.com/2kmehdi/M3UAndroid-Pro/releases/download/v3.0.0/tv-debug.apk) |
 
 👉 **[View All Releases & Mirrors on GitHub](https://github.com/2kmehdi/M3UAndroid-Pro/releases)**
 
@@ -49,10 +49,13 @@
 
 </div>
 
-## 🌟 What's New in V2.2?
+## 🌟 What's New in V3.0 (Nebula Edition)?
 
-- 🎮 **Integrated STB / TV Remote Control**: Dedicated Vision Forever / G-MScreen / Enigma2 & DLNA remote pad with circular D-Pad, Volume/Channel rockers, numeric keypad (0-9), EPG, Menu, and media keys.
-- 🍏 **Apple iOS / Zen Player Glass Style**: Frosted glassmorphism, translucent Control Center action tiles, avatar orbs, and smooth segmented capsules.
+- 🩺 **IPTV Stream Doctor & Health Analyzer**: Pre-flight test for ping latency, real-world chunk throughput (Mbps), anti-hotlinking detection, and HTTP status codes before playback.
+- 🎮 **Universal STB Remote 2.0**: Dual D-Pad Wheel & Swipe Trackpad modes with local network auto-scanner for Vision Forever, Sunplus, G-MScreen, and Enigma2 receivers.
+- ⚡ **Dynamic Buffer & Zero-Stutter LoadControl**: Instant 1.5s stream startup buffer with up to 60s preload depth to eliminate live sports buffering.
+- 🍏 **Apple iOS 18 Glassmorphism**: Frosted glass vibrancy, control center tiles, avatar profile switcher, and dark-mode luxury styling.
+- 🌐 **Web Sniffer 2.0 with Anti-Hotlink Injection**: Forward Referer, Origin, and User-Agent headers directly to ExoPlayer and DLNA casting to bypass 403 Forbidden server restrictions.
 - ▶️ **Native YouTube Stream Resolver**: Dual-engine Innertube + Piped extractor resolves YouTube URLs and live feeds into direct MP4/HLS streams for ExoPlayer and DLNA Smart TVs.
 - 🛡️ **Zero-OOM Streaming M3U & Xtream Engine**: Fixed URL double-slash bug, sanitized credentials, and empowered the provider playback client with SSL TrustAll and extended timeouts.
 - 🎛️ **Live Profile & Category Filtering**: Real-time filtering by profiles (`👑 All Access`, `⚽ Live Sports`, `🍿 Cinema VOD`, `📺 TV Series`, `🧸 Family & Kids`) and categories (`⚡ All`, `📡 Live TV`, `🍿 Movies`, `🎞️ TV Shows`).

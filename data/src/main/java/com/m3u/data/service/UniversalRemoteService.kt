@@ -45,6 +45,13 @@ enum class StbKeyCode(val commandName: String, val keyCode: Int) {
     NUM_9("9", 10)
 }
 
+data class DiscoveredStb(
+    val ip: String,
+    val port: Int,
+    val name: String,
+    val protocol: String
+)
+
 /**
  * Universal STB and Smart TV Remote Controller
  * Communicates via:
@@ -53,6 +60,43 @@ enum class StbKeyCode(val commandName: String, val keyCode: Int) {
  */
 @Singleton
 class UniversalRemoteService @Inject constructor() {
+
+    /**
+     * Fast local network scanner to auto-discover STB receivers (Vision Forever, Sunplus, Enigma2)
+     */
+    suspend fun scanLocalStbs(subnetBase: String = "192.168.1"): List<DiscoveredStb> = withContext(Dispatchers.IO) {
+        val found = mutableListOf<DiscoveredStb>()
+        val portsToCheck = listOf(
+            9876 to "Vision / Sunplus / G-MScreen (UDP)",
+            80 to "Enigma2 WebControl (HTTP)",
+            8080 to "Smart Box Remote (HTTP)"
+        )
+
+        // Probe common IPs in local subnet
+        val targets = (1..35) + listOf(100, 101, 102, 105, 110, 120, 150, 200)
+        for (i in targets) {
+            val ip = "$subnetBase.$i"
+            for ((port, protocol) in portsToCheck) {
+                try {
+                    val socket = java.net.Socket()
+                    socket.connect(java.net.InetSocketAddress(ip, port), 120)
+                    socket.close()
+                    found.add(
+                        DiscoveredStb(
+                            ip = ip,
+                            port = port,
+                            name = "STB Receiver ($ip:$port)",
+                            protocol = protocol
+                        )
+                    )
+                    break
+                } catch (_: Exception) {
+                    // Host/port closed or unreachable
+                }
+            }
+        }
+        found
+    }
 
     /**
      * Sends raw STB key code via UDP socket (compatible with G-MScreen, Sunplus, Vision Forever STBs)

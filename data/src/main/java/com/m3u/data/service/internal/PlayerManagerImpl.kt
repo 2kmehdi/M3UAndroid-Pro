@@ -619,21 +619,34 @@ class PlayerManagerImpl @Inject constructor(
         mediaSourceFactory: MediaSource.Factory,
         tunneling: Boolean,
         listener: Player.Listener,
-    ): ExoPlayer = ExoPlayer.Builder(context)
-        .setMediaSourceFactory(mediaSourceFactory)
-        .setRenderersFactory(renderersFactory)
-        .setTrackSelector(createTrackSelector(tunneling))
-        .setHandleAudioBecomingNoisy(true)
-        .build()
-        .apply {
-            val attributes = AudioAttributes.Builder()
-                .setUsage(C.USAGE_MEDIA)
-                .setContentType(C.AUDIO_CONTENT_TYPE_MOVIE)
-                .build()
-            setAudioAttributes(attributes, true)
-            playWhenReady = true
-            addListener(listener)
-        }
+    ): ExoPlayer {
+        val loadControl = androidx.media3.exoplayer.DefaultLoadControl.Builder()
+            .setBufferDurationsMs(
+                /* minBufferMs = */ 15_000,
+                /* maxBufferMs = */ 60_000,
+                /* bufferForPlaybackMs = */ 1_500,
+                /* bufferForPlaybackAfterRebufferMs = */ 3_000
+            )
+            .setPrioritizeTimeOverSizeThresholds(true)
+            .build()
+
+        return ExoPlayer.Builder(context)
+            .setMediaSourceFactory(mediaSourceFactory)
+            .setRenderersFactory(renderersFactory)
+            .setTrackSelector(createTrackSelector(tunneling))
+            .setLoadControl(loadControl)
+            .setHandleAudioBecomingNoisy(true)
+            .build()
+            .apply {
+                val attributes = AudioAttributes.Builder()
+                    .setUsage(C.USAGE_MEDIA)
+                    .setContentType(C.AUDIO_CONTENT_TYPE_MOVIE)
+                    .build()
+                setAudioAttributes(attributes, true)
+                playWhenReady = true
+                addListener(listener)
+            }
+    }
 
     private fun preparePlayer(
         generation: Long,

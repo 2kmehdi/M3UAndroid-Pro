@@ -124,6 +124,14 @@ fun CastHubRoute(
     val castState by viewModel.castState.collectAsStateWithLifecycle()
     val selectedDevice by viewModel.selectedDeviceForCast.collectAsStateWithLifecycle()
 
+    val streamHealthReport by viewModel.streamHealthReport.collectAsStateWithLifecycle()
+    val isDiagnosingStream by viewModel.isDiagnosingStream.collectAsStateWithLifecycle()
+    val discoveredStbs by viewModel.discoveredStbs.collectAsStateWithLifecycle()
+    val isScanningStbs by viewModel.isScanningStbs.collectAsStateWithLifecycle()
+    val antiHotlinkReferer by viewModel.antiHotlinkReferer.collectAsStateWithLifecycle()
+    val adBlockEnabled by viewModel.adBlockEnabled.collectAsStateWithLifecycle()
+    var targetStbIp by remember { mutableStateOf("") }
+
     val context = LocalContext.current
 
     Column(
@@ -147,11 +155,11 @@ fun CastHubRoute(
             Spacer(modifier = Modifier.width(10.dp))
             Column {
                 Text(
-                    text = "Cast & Stream Hub",
+                    text = "Cast & Stream Hub Pro",
                     style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold)
                 )
                 Text(
-                    text = "Universal DLNA, Direct Link Caster & Web Sniffer",
+                    text = "DLNA, Sniffer, STB Remote & Stream Doctor",
                     style = MaterialTheme.typography.labelSmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
@@ -167,14 +175,14 @@ fun CastHubRoute(
             Tab(
                 selected = selectedTab == 0,
                 onClick = { viewModel.selectTab(0) },
-                text = { Text("⚡ Quick Cast", fontWeight = if (selectedTab == 0) FontWeight.Bold else FontWeight.Normal) }
+                text = { Text("⚡ Cast", fontWeight = if (selectedTab == 0) FontWeight.Bold else FontWeight.Normal) }
             )
             Tab(
                 selected = selectedTab == 1,
                 onClick = { viewModel.selectTab(1) },
                 text = {
                     Row(verticalAlignment = Alignment.CenterVertically) {
-                        Text("🌐 Web Sniffer", fontWeight = if (selectedTab == 1) FontWeight.Bold else FontWeight.Normal)
+                        Text("🌐 Sniffer", fontWeight = if (selectedTab == 1) FontWeight.Bold else FontWeight.Normal)
                         if (detectedStreams.isNotEmpty()) {
                             Spacer(modifier = Modifier.width(6.dp))
                             Surface(
@@ -200,7 +208,7 @@ fun CastHubRoute(
                 onClick = { viewModel.selectTab(2) },
                 text = {
                     Row(verticalAlignment = Alignment.CenterVertically) {
-                        Text("📡 DLNA TVs", fontWeight = if (selectedTab == 2) FontWeight.Bold else FontWeight.Normal)
+                        Text("📡 Screens", fontWeight = if (selectedTab == 2) FontWeight.Bold else FontWeight.Normal)
                         if (devices.isNotEmpty()) {
                             Spacer(modifier = Modifier.width(6.dp))
                             Surface(
@@ -225,6 +233,11 @@ fun CastHubRoute(
                 selected = selectedTab == 3,
                 onClick = { viewModel.selectTab(3) },
                 text = { Text("🎮 Remote", fontWeight = if (selectedTab == 3) FontWeight.Bold else FontWeight.Normal) }
+            )
+            Tab(
+                selected = selectedTab == 4,
+                onClick = { viewModel.selectTab(4) },
+                text = { Text("🩺 Doctor", fontWeight = if (selectedTab == 4) FontWeight.Bold else FontWeight.Normal) }
             )
         }
 
@@ -275,9 +288,33 @@ fun CastHubRoute(
             ) {
                 com.m3u.smartphone.ui.business.remote.StbRemoteView(
                     activeDeviceName = selectedDevice?.friendlyName ?: "DLNA Smart TV",
-                    onSendKey = { key -> viewModel.sendRemoteKey(key) }
+                    targetIp = targetStbIp,
+                    onTargetIpChange = { targetStbIp = it },
+                    discoveredStbs = discoveredStbs,
+                    isScanningStbs = isScanningStbs,
+                    onScanStbs = viewModel::scanNetworkStbs,
+                    onSendKey = { key -> viewModel.sendRemoteKey(key, targetStbIp) }
                 )
             }
+            4 -> StreamDoctorTab(
+                url = quickCastUrl,
+                report = streamHealthReport,
+                isDiagnosing = isDiagnosingStream,
+                onUrlChange = viewModel::setQuickCastUrl,
+                onDiagnose = { u -> viewModel.runStreamDoctor(u) },
+                onPlay = { u, t ->
+                    viewModel.playInApp(u, t)
+                    navigateToChannel()
+                },
+                onCast = { u, t ->
+                    val dev = selectedDevice ?: devices.firstOrNull()
+                    if (dev != null) {
+                        viewModel.castToDevice(dev, u, t)
+                    } else {
+                        Toast.makeText(context, "Please select a DLNA TV on the Screens tab first", Toast.LENGTH_SHORT).show()
+                    }
+                }
+            )
         }
     }
 }
@@ -931,3 +968,225 @@ private fun DlnaDevicesTab(
         }
     }
 }
+
+@Composable
+private fun StreamDoctorTab(
+    url: String,
+    report: com.m3u.data.service.StreamHealthReport?,
+    isDiagnosing: Boolean,
+    onUrlChange: (String) -> Unit,
+    onDiagnose: (String) -> Unit,
+    onPlay: (String, String) -> Unit,
+    onCast: (String, String) -> Unit
+) {
+    val scrollState = rememberScrollState()
+    val context = LocalContext.current
+
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .verticalScroll(scrollState)
+            .padding(16.dp)
+    ) {
+        Card(
+            shape = RoundedCornerShape(20.dp),
+            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)),
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Column(modifier = Modifier.padding(18.dp)) {
+                Text(
+                    text = "🩺 IPTV Stream Doctor & Health Analyzer",
+                    style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold)
+                )
+                Text(
+                    text = "Pre-flight test for ping latency, real-world chunk throughput, anti-hotlink restrictions & HTTP codes.",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.padding(top = 4.dp, bottom = 12.dp)
+                )
+
+                OutlinedTextField(
+                    value = url,
+                    onValueChange = onUrlChange,
+                    label = { Text("Stream URL to Diagnose") },
+                    placeholder = { Text("https://example.com/live.m3u8") },
+                    trailingIcon = {
+                        IconButton(onClick = {
+                            val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as? ClipboardManager
+                            val item = clipboard?.primaryClip?.getItemAt(0)?.text?.toString()
+                            if (!item.isNullOrBlank()) {
+                                onUrlChange(item)
+                            }
+                        }) {
+                            Icon(Icons.Rounded.ContentPaste, contentDescription = "Paste")
+                        }
+                    },
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(12.dp),
+                    singleLine = true
+                )
+
+                Spacer(modifier = Modifier.height(14.dp))
+
+                Button(
+                    onClick = { onDiagnose(url) },
+                    enabled = url.isNotBlank() && !isDiagnosing,
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(12.dp)
+                ) {
+                    if (isDiagnosing) {
+                        CircularProgressIndicator(
+                            color = MaterialTheme.colorScheme.onPrimary,
+                            modifier = Modifier.size(20.dp),
+                            strokeWidth = 2.dp
+                        )
+                        Spacer(modifier = Modifier.width(10.dp))
+                        Text("Diagnosing Stream Health...")
+                    } else {
+                        Text("🔬 Run Stream Health Diagnostic", fontWeight = FontWeight.Bold)
+                    }
+                }
+            }
+        }
+
+        if (report != null) {
+            Spacer(modifier = Modifier.height(16.dp))
+
+            // Diagnostic Status Banner
+            Surface(
+                color = if (report.isOnline) Color(0xFF30D158).copy(alpha = 0.15f) else Color(0xFFFF453A).copy(alpha = 0.15f),
+                shape = RoundedCornerShape(16.dp),
+                border = androidx.compose.foundation.BorderStroke(
+                    1.dp,
+                    if (report.isOnline) Color(0xFF30D158).copy(alpha = 0.4f) else Color(0xFFFF453A).copy(alpha = 0.4f)
+                ),
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Column(modifier = Modifier.padding(16.dp)) {
+                    Text(
+                        text = if (report.isOnline) "🟢 STREAM IS ONLINE & HEALTHY" else "🔴 STREAM ISSUES DETECTED",
+                        fontWeight = FontWeight.ExtraBold,
+                        style = MaterialTheme.typography.titleSmall,
+                        color = if (report.isOnline) Color(0xFF30D158) else Color(0xFFFF453A)
+                    )
+                    Spacer(modifier = Modifier.height(6.dp))
+                    Text(
+                        text = report.diagnosticMessage,
+                        style = MaterialTheme.typography.bodyMedium,
+                        fontWeight = FontWeight.Medium
+                    )
+                }
+            }
+
+            Spacer(modifier = Modifier.height(14.dp))
+
+            // Metrics Grid
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(10.dp),
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                // Bandwidth Card
+                Card(
+                    shape = RoundedCornerShape(14.dp),
+                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.4f)),
+                    modifier = Modifier.weight(1f)
+                ) {
+                    Column(modifier = Modifier.padding(12.dp)) {
+                        Text("SPEED", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        Text(
+                            text = "${report.downloadSpeedMbps} Mbps",
+                            style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
+                            color = if (report.downloadSpeedMbps >= 5.0) Color(0xFF30D158) else Color(0xFFFF9F0A)
+                        )
+                    }
+                }
+                // Latency Card
+                Card(
+                    shape = RoundedCornerShape(14.dp),
+                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.4f)),
+                    modifier = Modifier.weight(1f)
+                ) {
+                    Column(modifier = Modifier.padding(12.dp)) {
+                        Text("LATENCY", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        Text(
+                            text = "${report.responseTimeMs} ms",
+                            style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
+                            color = if (report.responseTimeMs < 300) Color(0xFF30D158) else Color(0xFFFF9F0A)
+                        )
+                    }
+                }
+                // Status Code Card
+                Card(
+                    shape = RoundedCornerShape(14.dp),
+                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.4f)),
+                    modifier = Modifier.weight(1f)
+                ) {
+                    Column(modifier = Modifier.padding(12.dp)) {
+                        Text("HTTP CODE", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        Text(
+                            text = if (report.statusCode > 0) "${report.statusCode}" else "ERR",
+                            style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
+                            color = if (report.statusCode in 200..308) Color(0xFF30D158) else Color(0xFFFF453A)
+                        )
+                    }
+                }
+            }
+
+            Spacer(modifier = Modifier.height(10.dp))
+
+            // Details Card
+            Card(
+                shape = RoundedCornerShape(14.dp),
+                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.4f)),
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Column(modifier = Modifier.padding(14.dp)) {
+                    Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                        Text("Format:", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        Text(report.streamFormat, style = MaterialTheme.typography.bodySmall.copy(fontWeight = FontWeight.Bold))
+                    }
+                    Spacer(modifier = Modifier.height(4.dp))
+                    Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                        Text("Server IP:", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        Text(report.serverIp, style = MaterialTheme.typography.bodySmall.copy(fontWeight = FontWeight.Bold))
+                    }
+                    if (report.contentType.isNotBlank()) {
+                        Spacer(modifier = Modifier.height(4.dp))
+                        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                            Text("Content-Type:", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                            Text(report.contentType, style = MaterialTheme.typography.bodySmall.copy(fontWeight = FontWeight.Bold))
+                        }
+                    }
+                }
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            // Quick Actions
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(10.dp),
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Button(
+                    onClick = { onPlay(report.url, "Diagnosed Stream") },
+                    shape = RoundedCornerShape(12.dp),
+                    modifier = Modifier.weight(1f)
+                ) {
+                    Icon(Icons.Rounded.PlayArrow, contentDescription = null, modifier = Modifier.size(18.dp))
+                    Spacer(modifier = Modifier.width(6.dp))
+                    Text("Play Stream")
+                }
+                FilledTonalButton(
+                    onClick = { onCast(report.url, "Diagnosed Stream") },
+                    shape = RoundedCornerShape(12.dp),
+                    modifier = Modifier.weight(1f)
+                ) {
+                    Icon(Icons.Rounded.Cast, contentDescription = null, modifier = Modifier.size(18.dp))
+                    Spacer(modifier = Modifier.width(6.dp))
+                    Text("Cast to TV")
+                }
+            }
+        }
+    }
+}
+
