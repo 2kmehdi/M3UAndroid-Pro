@@ -37,7 +37,7 @@ jobs:
 
       - name: Build Smartphone and TV APKs
         run: |
-          ./gradlew :app:smartphone:assembleDebug :app:tv:assembleDebug --no-daemon
+          ./gradlew :app:smartphone:assembleDebug :app:tv:assembleDebug --stacktrace --no-daemon
 
       - name: Collect APKs
         run: |

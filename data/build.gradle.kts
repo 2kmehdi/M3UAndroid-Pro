@@ -168,6 +168,7 @@ dependencies {
     debugImplementation(libs.logback.android)
 
     implementation(libs.jakewharton.disklrucache)
+    implementation(libs.net.mm2d.mmupnp.mmupnp)
 
     androidTestImplementation(libs.androidx.room.testing)
     androidTestImplementation(libs.androidx.test.ext.junit)

@@ -188,8 +188,11 @@ class CastHubViewModel @Inject constructor(
         dlnaController.seek(device, positionMs)
     }
 
+    private var currentDlnaVolume: Int = 50
+
     fun setVolume(device: Device, volumePercent: Int) {
-        dlnaController.setVolume(device, volumePercent)
+        currentDlnaVolume = volumePercent.coerceIn(0, 100)
+        dlnaController.setVolume(device, currentDlnaVolume)
     }
 
     /**
@@ -204,12 +207,15 @@ class CastHubViewModel @Inject constructor(
                     StbKeyCode.PAUSE -> dlnaController.pause(selected)
                     StbKeyCode.STOP -> dlnaController.stop(selected)
                     StbKeyCode.VOL_UP -> {
-                        val current = dlnaController.castState.value.volume
-                        dlnaController.setVolume(selected, (current + 5).coerceAtMost(100))
+                        currentDlnaVolume = (currentDlnaVolume + 5).coerceAtMost(100)
+                        dlnaController.setVolume(selected, currentDlnaVolume)
                     }
                     StbKeyCode.VOL_DOWN -> {
-                        val current = dlnaController.castState.value.volume
-                        dlnaController.setVolume(selected, (current - 5).coerceAtLeast(0))
+                        currentDlnaVolume = (currentDlnaVolume - 5).coerceAtLeast(0)
+                        dlnaController.setVolume(selected, currentDlnaVolume)
+                    }
+                    StbKeyCode.MUTE -> {
+                        dlnaController.setVolume(selected, 0)
                     }
                     else -> {
                         universalRemoteService.sendDlnaControl(selected, key.commandName)

@@ -6,7 +6,6 @@ import net.mm2d.upnp.Device
 import java.net.DatagramPacket
 import java.net.DatagramSocket
 import java.net.InetAddress
-import java.net.Socket
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -108,8 +107,7 @@ class UniversalRemoteService @Inject constructor() {
             }
             action.invoke(
                 argumentValues = args,
-                onResult = {},
-                onError = {}
+                onResult = {}
             )
             true
         } catch (_: Exception) {
