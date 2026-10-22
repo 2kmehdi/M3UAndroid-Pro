@@ -220,6 +220,10 @@ fun CastHubRoute(
                         }
                     }
                 }
+            Tab(
+                selected = selectedTab == 3,
+                onClick = { viewModel.selectTab(3) },
+                text = { Text("🎮 Remote", fontWeight = if (selectedTab == 3) FontWeight.Bold else FontWeight.Normal) }
             )
         }
 
@@ -262,6 +266,17 @@ fun CastHubRoute(
                 onStop = viewModel::stopCast,
                 onSeek = viewModel::seekCast
             )
+            3 -> Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .verticalScroll(rememberScrollState())
+                    .padding(16.dp)
+            ) {
+                com.m3u.smartphone.ui.business.remote.StbRemoteView(
+                    activeDeviceName = selectedDevice?.friendlyName ?: "DLNA Smart TV",
+                    onSendKey = { key -> viewModel.sendRemoteKey(key) }
+                )
+            }
         }
     }
 }

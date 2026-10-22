@@ -11,6 +11,8 @@ import com.m3u.data.database.model.Channel
 import com.m3u.data.repository.channel.ChannelRepository
 import com.m3u.data.service.MediaCommand
 import com.m3u.data.service.PlayerManager
+import com.m3u.data.service.StbKeyCode
+import com.m3u.data.service.UniversalRemoteService
 import com.m3u.data.service.YouTubeStreamResolver
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -29,6 +31,7 @@ class CastHubViewModel @Inject constructor(
     private val channelRepository: ChannelRepository,
     private val channelDao: ChannelDao,
     private val playerManager: PlayerManager,
+    private val universalRemoteService: UniversalRemoteService,
     @OkhttpClient(false) private val okHttpClient: OkHttpClient
 ) : ViewModel() {
 
@@ -187,6 +190,36 @@ class CastHubViewModel @Inject constructor(
 
     fun setVolume(device: Device, volumePercent: Int) {
         dlnaController.setVolume(device, volumePercent)
+    }
+
+    /**
+     * Sends physical STB / Smart TV key command via DLNA UPnP or local network socket
+     */
+    fun sendRemoteKey(key: StbKeyCode, targetIp: String = "") {
+        viewModelScope.launch {
+            val selected = _selectedDeviceForCast.value
+            if (selected != null) {
+                when (key) {
+                    StbKeyCode.PLAY -> dlnaController.resume(selected)
+                    StbKeyCode.PAUSE -> dlnaController.pause(selected)
+                    StbKeyCode.STOP -> dlnaController.stop(selected)
+                    StbKeyCode.VOL_UP -> {
+                        val current = dlnaController.castState.value.volume
+                        dlnaController.setVolume(selected, (current + 5).coerceAtMost(100))
+                    }
+                    StbKeyCode.VOL_DOWN -> {
+                        val current = dlnaController.castState.value.volume
+                        dlnaController.setVolume(selected, (current - 5).coerceAtLeast(0))
+                    }
+                    else -> {
+                        universalRemoteService.sendDlnaControl(selected, key.commandName)
+                    }
+                }
+            }
+            if (targetIp.isNotBlank()) {
+                universalRemoteService.sendUdpKey(targetIp, port = 9876, key = key)
+            }
+        }
     }
 
     override fun onCleared() {
