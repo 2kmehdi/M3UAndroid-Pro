@@ -69,6 +69,7 @@ import com.m3u.data.repository.provider.ProviderPlaybackSession
 import com.m3u.data.repository.provider.SubscriptionProviderRepository
 import com.m3u.data.service.MediaCommand
 import com.m3u.data.service.PlayerManager
+import com.m3u.data.service.YouTubeStreamResolver
 import dagger.hilt.android.qualifiers.ApplicationContext
 import io.ktor.http.Url
 import kotlinx.coroutines.CoroutineScope
@@ -271,9 +272,14 @@ class PlayerManagerImpl @Inject constructor(
                 )
                 return
             }
-            val channelUrl = providerSource?.url
+            val rawChannelUrl = providerSource?.url
                 ?: channel.url.takeUnless { url -> url == Channel.URL_DYNAMIC }
                 ?: throw ProviderOperationException("Dynamic playback reference was not found")
+            val channelUrl = if (YouTubeStreamResolver.isYouTubeUrl(rawChannelUrl)) {
+                YouTubeStreamResolver.resolve(rawChannelUrl, okHttpClient)
+            } else {
+                rawChannelUrl
+            }
             val attachment = providerSessionState.attach(
                 generation = generation,
                 session = providerSource?.session,

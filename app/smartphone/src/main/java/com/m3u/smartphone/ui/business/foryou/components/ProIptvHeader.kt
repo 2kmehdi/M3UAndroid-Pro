@@ -1,8 +1,8 @@
 package com.m3u.smartphone.ui.business.foryou.components
 
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
+import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.spring
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -21,31 +21,23 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.Cast
-import androidx.compose.material.icons.rounded.Check
+import androidx.compose.material.icons.rounded.Bolt
 import androidx.compose.material.icons.rounded.Language
 import androidx.compose.material.icons.rounded.LiveTv
 import androidx.compose.material.icons.rounded.Movie
-import androidx.compose.material.icons.rounded.Person
-import androidx.compose.material.icons.rounded.PlayArrow
 import androidx.compose.material.icons.rounded.Radar
 import androidx.compose.material.icons.rounded.Tv
 import androidx.compose.material.icons.rounded.VideoLibrary
-import androidx.compose.material.icons.rounded.Bolt
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -71,13 +63,13 @@ val DEFAULT_PROFILES = listOf(
 @Composable
 fun ProIptvHeader(
     totalPlaylists: Int,
+    selectedProfileId: String,
+    onSelectProfile: (String) -> Unit,
+    selectedCategory: String,
+    onSelectCategory: (String) -> Unit,
     onNavigateToCastHub: () -> Unit,
-    onCategorySelected: (String) -> Unit = {},
     modifier: Modifier = Modifier
 ) {
-    var selectedProfileIndex by remember { mutableIntStateOf(0) }
-    var selectedCategoryIndex by remember { mutableIntStateOf(0) }
-
     val categories = listOf(
         "⚡ All" to Icons.Rounded.VideoLibrary,
         "📡 Live TV" to Icons.Rounded.LiveTv,
@@ -88,28 +80,38 @@ fun ProIptvHeader(
     Column(
         modifier = modifier
             .fillMaxWidth()
-            .padding(horizontal = 14.dp, vertical = 8.dp)
+            .padding(horizontal = 16.dp, vertical = 6.dp)
     ) {
-        // --- 1. PROFILES BAR ---
+        // --- 1. PROFILES BAR (iOS Glass Avatar Capsules) ---
         Row(
             verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier.fillMaxWidth()
         ) {
             Text(
                 text = "PROFILES",
-                style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.ExtraBold, letterSpacing = 1.2.sp),
-                color = MaterialTheme.colorScheme.primary
+                style = MaterialTheme.typography.labelSmall.copy(
+                    fontWeight = FontWeight.Bold,
+                    letterSpacing = 1.4.sp
+                ),
+                color = MaterialTheme.colorScheme.primary.copy(alpha = 0.85f)
             )
             Spacer(modifier = Modifier.width(8.dp))
             Box(
                 modifier = Modifier
                     .height(1.dp)
                     .weight(1f)
-                    .background(MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.4f))
+                    .background(
+                        Brush.horizontalGradient(
+                            listOf(
+                                MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.4f),
+                                Color.Transparent
+                            )
+                        )
+                    )
             )
         }
 
-        Spacer(modifier = Modifier.height(8.dp))
+        Spacer(modifier = Modifier.height(10.dp))
 
         Row(
             modifier = Modifier
@@ -118,59 +120,103 @@ fun ProIptvHeader(
             horizontalArrangement = Arrangement.spacedBy(10.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            DEFAULT_PROFILES.forEachIndexed { index, profile ->
-                val isSelected = selectedProfileIndex == index
-                Surface(
-                    shape = RoundedCornerShape(20.dp),
-                    color = if (isSelected) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f),
-                    border = if (isSelected) androidx.compose.foundation.BorderStroke(1.5.dp, MaterialTheme.colorScheme.primary) else null,
-                    modifier = Modifier.clickable { selectedProfileIndex = index }
+            DEFAULT_PROFILES.forEach { profile ->
+                val isSelected = selectedProfileId == profile.id
+                val glassBg by animateColorAsState(
+                    targetValue = if (isSelected) MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.75f)
+                    else MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.35f),
+                    animationSpec = spring(stiffness = Spring.StiffnessMediumLow),
+                    label = "glassProfileBg"
+                )
+                val glassBorder = if (isSelected) {
+                    Brush.linearGradient(
+                        listOf(
+                            MaterialTheme.colorScheme.primary.copy(alpha = 0.8f),
+                            MaterialTheme.colorScheme.primary.copy(alpha = 0.3f)
+                        )
+                    )
+                } else {
+                    Brush.linearGradient(
+                        listOf(
+                            Color.White.copy(alpha = 0.15f),
+                            Color.White.copy(alpha = 0.04f)
+                        )
+                    )
+                }
+
+                Box(
+                    modifier = Modifier
+                        .clip(RoundedCornerShape(22.dp))
+                        .background(glassBg)
+                        .border(1.dp, glassBorder, RoundedCornerShape(22.dp))
+                        .clickable { onSelectProfile(profile.id) }
+                        .padding(horizontal = 12.dp, vertical = 6.dp)
                 ) {
                     Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp)
+                        verticalAlignment = Alignment.CenterVertically
                     ) {
                         Box(
                             modifier = Modifier
-                                .size(24.dp)
+                                .size(26.dp)
                                 .clip(CircleShape)
                                 .background(Brush.linearGradient(profile.gradient)),
                             contentAlignment = Alignment.Center
                         ) {
-                            Text(text = profile.iconEmoji, fontSize = 12.sp)
+                            Text(text = profile.iconEmoji, fontSize = 13.sp)
                         }
                         Spacer(modifier = Modifier.width(8.dp))
                         Text(
                             text = profile.name,
-                            style = MaterialTheme.typography.labelMedium.copy(fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal),
-                            color = if (isSelected) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onSurface
+                            style = MaterialTheme.typography.labelMedium.copy(
+                                fontWeight = if (isSelected) FontWeight.SemiBold else FontWeight.Normal,
+                                letterSpacing = 0.2.sp
+                            ),
+                            color = if (isSelected) MaterialTheme.colorScheme.onPrimaryContainer
+                            else MaterialTheme.colorScheme.onSurface
                         )
                     }
                 }
             }
         }
 
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier = Modifier.height(14.dp))
 
-        // --- 2. HERO PRO IPTV ACTION CARD ---
-        Card(
-            shape = RoundedCornerShape(20.dp),
-            colors = CardDefaults.cardColors(
-                containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.7f)
-            ),
-            modifier = Modifier.fillMaxWidth()
+        // --- 2. APPLE IOS GLASS HERO CARD ---
+        val heroGlassBg = Brush.verticalGradient(
+            listOf(
+                MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.45f),
+                MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.25f)
+            )
+        )
+        val heroGlassBorder = Brush.verticalGradient(
+            listOf(
+                Color.White.copy(alpha = 0.22f),
+                Color.White.copy(alpha = 0.05f)
+            )
+        )
+
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .shadow(elevation = 8.dp, shape = RoundedCornerShape(24.dp), ambientColor = Color.Black.copy(alpha = 0.2f))
+                .clip(RoundedCornerShape(24.dp))
+                .background(heroGlassBg)
+                .border(1.dp, heroGlassBorder, RoundedCornerShape(24.dp))
+                .padding(16.dp)
         ) {
-            Column(modifier = Modifier.padding(16.dp)) {
+            Column {
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
                     modifier = Modifier.fillMaxWidth()
                 ) {
                     Box(
                         modifier = Modifier
-                            .size(38.dp)
+                            .size(42.dp)
+                            .clip(CircleShape)
                             .background(
-                                Brush.linearGradient(listOf(Color(0xFF7C4DFF), Color(0xFF00E676))),
-                                CircleShape
+                                Brush.linearGradient(
+                                    listOf(Color(0xFF8E2DE2), Color(0xFF4A00E0))
+                                )
                             ),
                         contentAlignment = Alignment.Center
                     ) {
@@ -178,48 +224,54 @@ fun ProIptvHeader(
                             imageVector = Icons.Rounded.LiveTv,
                             contentDescription = null,
                             tint = Color.White,
-                            modifier = Modifier.size(20.dp)
+                            modifier = Modifier.size(22.dp)
                         )
                     }
                     Spacer(modifier = Modifier.width(12.dp))
                     Column(modifier = Modifier.weight(1f)) {
                         Text(
                             text = "M3UAndroid Pro Suite",
-                            style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold)
+                            style = MaterialTheme.typography.titleMedium.copy(
+                                fontWeight = FontWeight.Bold,
+                                letterSpacing = (-0.3).sp
+                            )
                         )
                         Text(
-                            text = "$totalPlaylists active playlists • Ready for Universal DLNA Cast",
+                            text = "$totalPlaylists playlists • Universal Smart Cast & Streams",
                             style = MaterialTheme.typography.labelSmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.8f)
                         )
                     }
                 }
 
                 Spacer(modifier = Modifier.height(14.dp))
 
-                // Three Pro Action Buttons
+                // Three iOS Control Center-style Frosted Tiles
                 Row(
                     modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    horizontalArrangement = Arrangement.spacedBy(10.dp)
                 ) {
-                    QuickActionButton(
+                    IosGlassTile(
                         title = "Quick Cast",
+                        subtitle = "Instant URL",
                         icon = Icons.Rounded.Bolt,
-                        color = Color(0xFFFF9100),
+                        accentColor = Color(0xFFFF9500),
                         modifier = Modifier.weight(1f),
                         onClick = onNavigateToCastHub
                     )
-                    QuickActionButton(
+                    IosGlassTile(
                         title = "Web Sniffer",
+                        subtitle = "Auto Extract",
                         icon = Icons.Rounded.Language,
-                        color = Color(0xFF00B0FF),
+                        accentColor = Color(0xFF007AFF),
                         modifier = Modifier.weight(1f),
                         onClick = onNavigateToCastHub
                     )
-                    QuickActionButton(
+                    IosGlassTile(
                         title = "DLNA Radar",
+                        subtitle = "Smart TVs",
                         icon = Icons.Rounded.Radar,
-                        color = Color(0xFF00E676),
+                        accentColor = Color(0xFF34C759),
                         modifier = Modifier.weight(1f),
                         onClick = onNavigateToCastHub
                     )
@@ -229,39 +281,64 @@ fun ProIptvHeader(
 
         Spacer(modifier = Modifier.height(14.dp))
 
-        // --- 3. CATEGORY SEGMENTED TABS (Live TV / Movies / TV Shows) ---
-        Row(
+        // --- 3. IOS SEGMENTED CAPSULE (All / Live TV / Movies / TV Shows) ---
+        val segmentGlassBg = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.35f)
+        val segmentGlassBorder = Brush.verticalGradient(
+            listOf(
+                Color.White.copy(alpha = 0.18f),
+                Color.White.copy(alpha = 0.04f)
+            )
+        )
+
+        Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .horizontalScroll(rememberScrollState()),
-            horizontalArrangement = Arrangement.spacedBy(8.dp)
+                .clip(RoundedCornerShape(16.dp))
+                .background(segmentGlassBg)
+                .border(1.dp, segmentGlassBorder, RoundedCornerShape(16.dp))
+                .padding(4.dp)
         ) {
-            categories.forEachIndexed { index, (label, icon) ->
-                val isSelected = selectedCategoryIndex == index
-                Surface(
-                    shape = RoundedCornerShape(12.dp),
-                    color = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.4f),
-                    modifier = Modifier.clickable {
-                        selectedCategoryIndex = index
-                        onCategorySelected(label)
-                    }
-                ) {
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        modifier = Modifier.padding(horizontal = 14.dp, vertical = 8.dp)
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .horizontalScroll(rememberScrollState()),
+                horizontalArrangement = Arrangement.spacedBy(4.dp)
+            ) {
+                categories.forEach { (label, icon) ->
+                    val isSelected = selectedCategory == label
+                    val activeBg by animateColorAsState(
+                        targetValue = if (isSelected) MaterialTheme.colorScheme.primaryContainer else Color.Transparent,
+                        animationSpec = spring(stiffness = Spring.StiffnessMediumLow),
+                        label = "segmentActiveBg"
+                    )
+
+                    Box(
+                        modifier = Modifier
+                            .clip(RoundedCornerShape(12.dp))
+                            .background(activeBg)
+                            .clickable { onSelectCategory(label) }
+                            .padding(horizontal = 14.dp, vertical = 7.dp),
+                        contentAlignment = Alignment.Center
                     ) {
-                        Icon(
-                            imageVector = icon,
-                            contentDescription = null,
-                            tint = if (isSelected) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurfaceVariant,
-                            modifier = Modifier.size(16.dp)
-                        )
-                        Spacer(modifier = Modifier.width(6.dp))
-                        Text(
-                            text = label,
-                            style = MaterialTheme.typography.labelMedium.copy(fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium),
-                            color = if (isSelected) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurfaceVariant
-                        )
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Icon(
+                                imageVector = icon,
+                                contentDescription = null,
+                                tint = if (isSelected) MaterialTheme.colorScheme.primary
+                                else MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f),
+                                modifier = Modifier.size(15.dp)
+                            )
+                            Spacer(modifier = Modifier.width(6.dp))
+                            Text(
+                                text = label,
+                                style = MaterialTheme.typography.labelMedium.copy(
+                                    fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium,
+                                    letterSpacing = (-0.2).sp
+                                ),
+                                color = if (isSelected) MaterialTheme.colorScheme.onPrimaryContainer
+                                else MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
                     }
                 }
             }
@@ -270,40 +347,66 @@ fun ProIptvHeader(
 }
 
 @Composable
-private fun QuickActionButton(
+private fun IosGlassTile(
     title: String,
+    subtitle: String,
     icon: ImageVector,
-    color: Color,
+    accentColor: Color,
     modifier: Modifier = Modifier,
     onClick: () -> Unit
 ) {
-    Surface(
-        shape = RoundedCornerShape(12.dp),
-        color = MaterialTheme.colorScheme.background.copy(alpha = 0.6f),
-        modifier = modifier.clickable { onClick() }
+    val tileGlassBg = Brush.verticalGradient(
+        listOf(
+            Color.White.copy(alpha = 0.08f),
+            Color.White.copy(alpha = 0.02f)
+        )
+    )
+    val tileBorder = Brush.verticalGradient(
+        listOf(
+            Color.White.copy(alpha = 0.16f),
+            Color.White.copy(alpha = 0.04f)
+        )
+    )
+
+    Box(
+        modifier = modifier
+            .clip(RoundedCornerShape(18.dp))
+            .background(tileGlassBg)
+            .border(1.dp, tileBorder, RoundedCornerShape(18.dp))
+            .clickable { onClick() }
+            .padding(vertical = 12.dp, horizontal = 6.dp),
+        contentAlignment = Alignment.Center
     ) {
         Column(
-            horizontalAlignment = Alignment.CenterHorizontally,
-            modifier = Modifier.padding(vertical = 10.dp, horizontal = 4.dp)
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Box(
                 modifier = Modifier
-                    .size(28.dp)
-                    .background(color.copy(alpha = 0.2f), CircleShape),
+                    .size(34.dp)
+                    .clip(CircleShape)
+                    .background(accentColor.copy(alpha = 0.18f)),
                 contentAlignment = Alignment.Center
             ) {
                 Icon(
                     imageVector = icon,
                     contentDescription = null,
-                    tint = color,
-                    modifier = Modifier.size(16.dp)
+                    tint = accentColor,
+                    modifier = Modifier.size(18.dp)
                 )
             }
-            Spacer(modifier = Modifier.height(4.dp))
+            Spacer(modifier = Modifier.height(6.dp))
             Text(
                 text = title,
-                style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.SemiBold),
-                fontSize = 11.sp,
+                style = MaterialTheme.typography.labelMedium.copy(
+                    fontWeight = FontWeight.Bold,
+                    letterSpacing = (-0.2).sp
+                ),
+                maxLines = 1
+            )
+            Text(
+                text = subtitle,
+                style = MaterialTheme.typography.labelSmall.copy(fontSize = 10.sp),
+                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f),
                 maxLines = 1
             )
         }

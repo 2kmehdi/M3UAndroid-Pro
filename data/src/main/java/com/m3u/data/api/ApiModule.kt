@@ -84,7 +84,17 @@ internal object ApiModule {
     @Provides
     @Singleton
     @ProviderOkhttpClient
-    fun provideProviderOkhttpClient(): OkHttpClient = OkHttpClient.Builder().build()
+    fun provideProviderOkhttpClient(): OkHttpClient {
+        return OkHttpClient.Builder()
+            .connectTimeout(30, java.util.concurrent.TimeUnit.SECONDS)
+            .readTimeout(60, java.util.concurrent.TimeUnit.SECONDS)
+            .writeTimeout(30, java.util.concurrent.TimeUnit.SECONDS)
+            .followRedirects(true)
+            .followSslRedirects(true)
+            .sslSocketFactory(SSLs.TLSTrustAll.socketFactory, Certs.TrustAll)
+            .hostnameVerifier { _, _ -> true }
+            .build()
+    }
 
     @Provides
     @Singleton

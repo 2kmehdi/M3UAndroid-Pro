@@ -188,6 +188,38 @@ private fun ForyouScreen(
     val lifecycleOwner = LocalLifecycleOwner.current
 
     var headlineSpec: Recommend.Spec? by remember { mutableStateOf(null) }
+    var selectedProfileId by remember { mutableStateOf("all") }
+    var selectedCategory by remember { mutableStateOf("⚡ All") }
+
+    val filteredPlaylists = remember(playlists, selectedProfileId, selectedCategory) {
+        when {
+            selectedProfileId == "cinema" || selectedCategory == "🍿 Movies" -> {
+                val matches = playlists.filterKeys {
+                    it.url.contains("type=vod") || it.title.contains("vod", ignoreCase = true) || it.title.contains("movie", ignoreCase = true)
+                }
+                if (matches.isNotEmpty()) matches else playlists
+            }
+            selectedProfileId == "series" || selectedCategory == "🎞️ TV Shows" -> {
+                val matches = playlists.filterKeys {
+                    it.isSeries || it.url.contains("type=series") || it.title.contains("series", ignoreCase = true)
+                }
+                if (matches.isNotEmpty()) matches else playlists
+            }
+            selectedProfileId == "sports" -> {
+                val matches = playlists.filterKeys {
+                    it.title.contains("sport", ignoreCase = true) || it.title.contains("football", ignoreCase = true) || it.title.contains("soccer", ignoreCase = true)
+                }
+                if (matches.isNotEmpty()) matches else playlists
+            }
+            selectedCategory == "📡 Live TV" -> {
+                val matches = playlists.filterKeys {
+                    !it.isSeries && !it.url.contains("type=vod") && !it.url.contains("type=series")
+                }
+                if (matches.isNotEmpty()) matches else playlists
+            }
+            else -> playlists
+        }
+    }
 
     val actualRowCount = remember(rowCount, configuration.orientation) {
         when (configuration.orientation) {
@@ -217,7 +249,11 @@ private fun ForyouScreen(
         val header = @Composable {
             Column(modifier = Modifier.fillMaxWidth()) {
                 ProIptvHeader(
-                    totalPlaylists = playlists.size,
+                    totalPlaylists = filteredPlaylists.size,
+                    selectedProfileId = selectedProfileId,
+                    onSelectProfile = { selectedProfileId = it },
+                    selectedCategory = selectedCategory,
+                    onSelectCategory = { selectedCategory = it },
                     onNavigateToCastHub = onNavigateToCastHub,
                     modifier = Modifier.fillMaxWidth()
                 )
@@ -234,7 +270,7 @@ private fun ForyouScreen(
         }
         PlaylistGallery(
             rowCount = actualRowCount,
-            playlists = playlists,
+            playlists = filteredPlaylists,
             subscribingPlaylistUrls = subscribingPlaylistUrls,
             refreshingEpgUrls = refreshingEpgUrls,
             onClick = navigateToPlaylist,

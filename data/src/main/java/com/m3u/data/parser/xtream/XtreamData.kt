@@ -15,14 +15,20 @@ fun XtreamLive.toChannel(
     category: String,
     // one of "allowed_output_formats"
     containerExtension: String
-): Channel = Channel(
-    url = "$basicUrl/live/$username/$password/$streamId.$containerExtension",
-    category = category,
-    title = name.orEmpty(),
-    cover = streamIcon,
-    playlistUrl = playlistUrl,
-    relationId = epgChannelId
-)
+): Channel {
+    val cleanBase = basicUrl.trim().trimEnd('/')
+    val cleanUser = username.trim()
+    val cleanPass = password.trim()
+    val ext = containerExtension.trim().trimStart('.').ifBlank { "ts" }
+    return Channel(
+        url = "$cleanBase/live/$cleanUser/$cleanPass/$streamId.$ext",
+        category = category,
+        title = name.orEmpty(),
+        cover = streamIcon,
+        playlistUrl = playlistUrl,
+        relationId = epgChannelId
+    )
+}
 
 fun XtreamVod.toChannel(
     basicUrl: String,
@@ -30,14 +36,20 @@ fun XtreamVod.toChannel(
     password: String,
     playlistUrl: String,
     category: String
-): Channel = Channel(
-    url = "$basicUrl/movie/$username/$password/$streamId.${containerExtension}",
-    category = category,
-    title = name.orEmpty(),
-    cover = streamIcon,
-    playlistUrl = playlistUrl,
-    relationId = streamId?.toString()
-)
+): Channel {
+    val cleanBase = basicUrl.trim().trimEnd('/')
+    val cleanUser = username.trim()
+    val cleanPass = password.trim()
+    val ext = containerExtension?.trim()?.trimStart('.')?.ifBlank { "mp4" } ?: "mp4"
+    return Channel(
+        url = "$cleanBase/movie/$cleanUser/$cleanPass/$streamId.$ext",
+        category = category,
+        title = name.orEmpty(),
+        cover = streamIcon,
+        playlistUrl = playlistUrl,
+        relationId = streamId?.toString()
+    )
+}
 
 fun XtreamSerial.asChannel(
     basicUrl: String,
@@ -45,11 +57,16 @@ fun XtreamSerial.asChannel(
     password: String,
     playlistUrl: String,
     category: String
-): Channel = Channel(
-    url = "$basicUrl/series/$username/$password/$seriesId",
-    category = category,
-    title = name.orEmpty(),
-    cover = cover,
-    playlistUrl = playlistUrl,
-    relationId = seriesId?.toString()
-)
+): Channel {
+    val cleanBase = basicUrl.trim().trimEnd('/')
+    val cleanUser = username.trim()
+    val cleanPass = password.trim()
+    return Channel(
+        url = "$cleanBase/series/$cleanUser/$cleanPass/$seriesId",
+        category = category,
+        title = name.orEmpty(),
+        cover = cover,
+        playlistUrl = playlistUrl,
+        relationId = seriesId?.toString()
+    )
+}

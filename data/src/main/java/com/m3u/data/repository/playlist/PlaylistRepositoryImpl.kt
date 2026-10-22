@@ -354,9 +354,9 @@ internal class PlaylistRepositoryImpl @Inject constructor(
                 when (current) {
                     is XtreamLive -> StagedChannel(
                         channel = current.toChannel(
-                            basicUrl = basicUrl,
-                            username = username,
-                            password = password,
+                            basicUrl = cleanBasicUrl,
+                            username = cleanUsername,
+                            password = cleanPassword,
                             playlistUrl = livePlaylistUrl,
                             category = liveCategories
                                 .find { it.categoryId == current.categoryId }
@@ -369,9 +369,9 @@ internal class PlaylistRepositoryImpl @Inject constructor(
 
                     is XtreamVod -> StagedChannel(
                         channel = current.toChannel(
-                            basicUrl = basicUrl,
-                            username = username,
-                            password = password,
+                            basicUrl = cleanBasicUrl,
+                            username = cleanUsername,
+                            password = cleanPassword,
                             playlistUrl = vodPlaylistUrl,
                             category = vodCategories
                                 .find { it.categoryId == current.categoryId }
@@ -384,9 +384,9 @@ internal class PlaylistRepositoryImpl @Inject constructor(
                     // Series are persisted as channels and resolved when selected.
                     is XtreamSerial -> StagedChannel(
                         channel = current.asChannel(
-                            basicUrl = basicUrl,
-                            username = username,
-                            password = password,
+                            basicUrl = cleanBasicUrl,
+                            username = cleanUsername,
+                            password = cleanPassword,
                             playlistUrl = seriesPlaylistUrl,
                             category = serialCategories
                                 .find { it.categoryId == current.categoryId }

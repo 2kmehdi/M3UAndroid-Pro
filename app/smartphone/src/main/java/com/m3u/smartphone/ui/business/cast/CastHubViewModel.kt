@@ -5,10 +5,13 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.m3u.business.channel.DlnaCastState
 import com.m3u.business.channel.DlnaController
+import com.m3u.data.api.OkhttpClient
+import com.m3u.data.database.dao.ChannelDao
 import com.m3u.data.database.model.Channel
 import com.m3u.data.repository.channel.ChannelRepository
 import com.m3u.data.service.MediaCommand
 import com.m3u.data.service.PlayerManager
+import com.m3u.data.service.YouTubeStreamResolver
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -17,13 +20,16 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import net.mm2d.upnp.Device
+import okhttp3.OkHttpClient
 import javax.inject.Inject
 
 @HiltViewModel
 class CastHubViewModel @Inject constructor(
     @ApplicationContext private val context: Context,
     private val channelRepository: ChannelRepository,
-    private val playerManager: PlayerManager
+    private val channelDao: ChannelDao,
+    private val playerManager: PlayerManager,
+    @OkhttpClient(false) private val okHttpClient: OkHttpClient
 ) : ViewModel() {
 
     private val dlnaController = DlnaController(context)
@@ -117,11 +123,15 @@ class CastHubViewModel @Inject constructor(
      */
     fun castToDevice(device: Device, url: String, title: String) {
         selectDevice(device)
-        dlnaController.playUrl(
-            device = device,
-            url = url,
-            title = title
-        )
+        viewModelScope.launch {
+            val cleanUrl = url.trim()
+            val resolvedUrl = YouTubeStreamResolver.resolve(cleanUrl, okHttpClient)
+            dlnaController.playUrl(
+                device = device,
+                url = resolvedUrl,
+                title = title.ifBlank { "M3UAndroid Stream" }
+            )
+        }
     }
 
     /**
@@ -129,10 +139,17 @@ class CastHubViewModel @Inject constructor(
      */
     fun playInApp(url: String, title: String) {
         viewModelScope.launch {
-            val recently = channelRepository.getPlayedRecently()
-            recently?.let {
-                playerManager.play(MediaCommand.Common(it.id))
-            }
+            val cleanUrl = url.trim()
+            if (cleanUrl.isBlank()) return@launch
+            val resolvedUrl = YouTubeStreamResolver.resolve(cleanUrl, okHttpClient)
+            val channel = Channel(
+                url = resolvedUrl,
+                title = title.ifBlank { "Direct Stream" },
+                category = "Quick Cast",
+                playlistUrl = "quick_cast_playlist"
+            )
+            val channelId = channelDao.insertOrReplace(channel).toInt()
+            playerManager.play(MediaCommand.Common(channelId))
         }
     }
 
