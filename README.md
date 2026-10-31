@@ -8,8 +8,8 @@
   <a href="https://github.com/2kmehdi/M3UAndroid-Pro/releases/latest">
     <img src="https://img.shields.io/github/v/release/2kmehdi/M3UAndroid-Pro?color=7C4DFF&label=Latest%20Release&logo=github&style=for-the-badge" alt="Latest Release" />
   </a>
-  <a href="https://github.com/2kmehdi/M3UAndroid-Pro/releases/tag/v4.0.0">
-    <img src="https://img.shields.io/badge/Release-v4.0.0-00E676?style=for-the-badge&logo=android&logoColor=white" alt="Release v4.0.0" />
+  <a href="https://github.com/2kmehdi/M3UAndroid-Pro/releases/tag/v5.0.0">
+    <img src="https://img.shields.io/badge/Release-v5.0.0-00E676?style=for-the-badge&logo=android&logoColor=white" alt="Release v5.0.0" />
   </a>
   <a href="https://github.com/2kmehdi/M3UAndroid-Pro/actions">
     <img src="https://img.shields.io/github/actions/workflow/status/2kmehdi/M3UAndroid-Pro/build-release-apk.yml?label=Build%20Status&logo=githubactions&style=for-the-badge" alt="Build Status" />
@@ -36,18 +36,49 @@
 
 ---
 
-### 📥 Direct APK Downloads (v4.0.0 Pro)
+### 📥 Direct APK Downloads (v5.0.0 Pro)
 
 | Target Platform | Package Name | Direct Download |
 | :--- | :--- | :--- |
-| 📱 **Smartphone & Tablet** | `smartphone-debug.apk` | [⬇️ **Download Smartphone APK v4.0.0**](https://github.com/2kmehdi/M3UAndroid-Pro/releases/download/v4.0.0/smartphone-debug.apk) |
-| 📺 **Android TV / Fire TV** | `tv-debug.apk` | [⬇️ **Download Android TV APK v4.0.0**](https://github.com/2kmehdi/M3UAndroid-Pro/releases/download/v4.0.0/tv-debug.apk) |
+| 📱 **Smartphone & Tablet** | `smartphone-debug.apk` | [⬇️ **Download Smartphone APK v5.0.0**](https://github.com/2kmehdi/M3UAndroid-Pro/releases/download/v5.0.0/smartphone-debug.apk) |
+| 📺 **Android TV / Fire TV** | `tv-debug.apk` | [⬇️ **Download Android TV APK v5.0.0**](https://github.com/2kmehdi/M3UAndroid-Pro/releases/download/v5.0.0/tv-debug.apk) |
 
 👉 **[View All Releases & Mirrors on GitHub](https://github.com/2kmehdi/M3UAndroid-Pro/releases)**
 
 ---
 
 </div>
+
+## 🌟 What's New in V5.0 (Manga Inked Comic Panels Universe)?
+
+- 💥 **Manga Inked Comic Panels Design Aesthetic**: Entire visual architecture refactored into a high-octane Japanese Shonen/Seinen manga comic panel style featuring thick ink strokes (`2.5dp–3.5dp`), authentic screentone halftone dot backgrounds, hard comic stamp drop shadows, onomatopoeia sound effect stickers (`【DON! ⚡】`, `【BAAAM! 💥】`, `【ZAP! ⚡】`), and chapter narration banners.
+- 🥋 **Chapter 01: IPTV Dojo (Xtream Codes & M3U8)**:
+  - Profile switcher ("Dojos": All Access, Live Arena, Cinema Vault, Anime Series, Sports).
+  - High-precision Ki Power Sync meter (0% to 100% stable connection gauge).
+  - Comic channel grid cells with high-res logos, live "ON AIR" broadcast badges, and instant 1-tap launcher.
+  - Inked modal bottom sheet to add and switch IPTV sources effortlessly.
+- 🌐 **Chapter 02: Omni-Video Web Sniffer & Stream Radar Hunter**:
+  - In-app Hunter browser with Manga Inked navigation controls and quick portal presets (YouTube, Twitch, Dailymotion, Archive.org).
+  - Intercepts and sniffs **ALL** video media types: `.m3u8` (HLS master & variants), `.mpd` (DASH), `.mp4`, `.mkv`, `.ts`, `.flv`, `.webm`, Blob URLs, and social stream embeds.
+  - **Manga Inked Sniffer Media Dock**: Sticky bottom panel with format badge (`[HLS 1080p]`, `[RAW MP4]`), health rating (`🟢 INK APPROVED`), and direct action buttons (`【▶️ PLAY INKED】`, `【📡 BEAM TO TV】`, `【📋 COPY RAW LINK】`).
+- 🎬 **Chapter 03: Manga Cinema & Dynamic Movies/TV Plugins Hub**:
+  - Full VOD & TV Show carousels with comic poster cards.
+  - **Dynamic Movie & TV Show Plugin Architecture**:
+    - Manage, enable, or disable community scraper plugins.
+    - **+ ADD PLUGIN Modal**: Install any custom Movie or TV Show plugin via manifest URL or JSON scraper!
+    - Preloaded built-in plugins:
+      1. *OpenFlix Free Cinema Guild* (cult classics, film noir, public domain movies)
+      2. *AnimeScrolls OVA & Series Plugin* (cyberpunk anime, retro mecha, shonen sagas)
+      3. *TMDB Cinematic Metadata Guild* (trending cinema, high-res posters, box office radar)
+- 📡 **Chapter 04: Smart TV Overlord (Universal Link Cannon & DLNA Remote)**:
+  - Turn **ANY** standard or non-smart TV into a full-fledged Smart TV over DLNA:
+    - **Universal Link Cannon**: Paste or send **ANY** link (YouTube, TikTok, Twitter/X, MP4, HLS, cloud storage video) -> 1-tap instant beam to DLNA TV with automated header spoofing!
+    - **Tactile Manga D-Pad Remote Controller**: Tactile D-pad (Up, Down, Left, Right, OK), Play/Pause/Stop/Scrub, volume wheel, subtitle pusher, and aspect ratio toggle (`16:9 ↔️ 21:9 ↔️ FILL`).
+    - SSDP DLNA Radar scanner with signal strength and IP identification.
+- ⚔️ **Ninja Armory & Power Tools**:
+  - **IPTV Stream Doctor**: Real-time ping latency, chunk throughput bitrate (Mbps), and HTTP health verification.
+  - **Zero-Stutter Turbo Pre-Load Buffer**: Configurable 1.5s startup buffer with up to 90s depth to eliminate buffering on live sports.
+  - **Anti-Hotlink Header Spoofing**: Automatic Referer, Origin, and User-Agent injection to prevent HTTP 403 Forbidden on smart TVs.
 
 ## 🌟 What's New in V4.0 (Quantum Edition)?
 

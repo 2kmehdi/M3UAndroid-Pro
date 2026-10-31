@@ -274,6 +274,56 @@ private fun ForyouScreen(
                 onOpenSettings = navigateToSettingPlaylistManagement
             )
 
+            // Manga Inked Comic Panels Universe Gateway Banner
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 14.dp, vertical = 6.dp)
+                    .clip(androidx.compose.foundation.shape.RoundedCornerShape(10.dp))
+                    .background(Color(0xFF0F0F14))
+                    .border(2.dp, Color(0xFFFFD700), androidx.compose.foundation.shape.RoundedCornerShape(10.dp))
+                    .clickable { onNavigateToCastHub() }
+                    .padding(horizontal = 12.dp, vertical = 8.dp)
+            ) {
+                androidx.compose.foundation.layout.Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    androidx.compose.foundation.layout.Row(verticalAlignment = Alignment.CenterVertically) {
+                        Box(
+                            modifier = Modifier
+                                .background(Color(0xFFFF2A2A), androidx.compose.foundation.shape.RoundedCornerShape(4.dp))
+                                .padding(horizontal = 5.dp, vertical = 2.dp)
+                        ) {
+                            Text("MANGA", color = Color.White, fontWeight = androidx.compose.ui.text.font.FontWeight.Black, fontSize = 9.sp)
+                        }
+                        androidx.compose.foundation.layout.Spacer(modifier = Modifier.width(8.dp))
+                        Column {
+                            Text(
+                                "INKED COMIC UNIVERSE ⚡",
+                                color = Color.White,
+                                fontWeight = androidx.compose.ui.text.font.FontWeight.Black,
+                                fontSize = 12.sp
+                            )
+                            Text(
+                                "IPTV Dojo • Omni-Sniffer • Movie Plugins • Smart TV",
+                                color = Color(0xFFCAC5B9),
+                                fontSize = 9.sp
+                            )
+                        }
+                    }
+
+                    Box(
+                        modifier = Modifier
+                            .background(Color(0xFFFFD700), androidx.compose.foundation.shape.RoundedCornerShape(4.dp))
+                            .padding(horizontal = 6.dp, vertical = 3.dp)
+                    ) {
+                        Text("ENTER 🚀", color = Color.Black, fontWeight = androidx.compose.ui.text.font.FontWeight.Black, fontSize = 10.sp)
+                    }
+                }
+            }
+
             when (selectedCategory) {
                 "📡 Live TV" -> {
                     V4LiveTvAndEpgView(

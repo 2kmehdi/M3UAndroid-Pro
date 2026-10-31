@@ -134,6 +134,75 @@ fun CastHubRoute(
 
     val context = LocalContext.current
 
+    val playlists by viewModel.playlists.collectAsStateWithLifecycle()
+    val activePlaylistUrl by viewModel.activePlaylistUrl.collectAsStateWithLifecycle()
+    val channels by viewModel.channels.collectAsStateWithLifecycle()
+
+    var isMangaMode by remember { mutableStateOf(true) }
+
+    if (isMangaMode) {
+        com.m3u.smartphone.ui.business.manga.MangaMasterContainer(
+            playlists = playlists,
+            activePlaylistUrl = activePlaylistUrl,
+            channels = channels,
+            detectedStreams = detectedStreams,
+            devices = devices,
+            searchingDlna = searching,
+            castState = castState,
+            streamHealthReport = streamHealthReport,
+            isDiagnosingStream = isDiagnosingStream,
+            onSelectPlaylist = viewModel::selectPlaylist,
+            onPlayChannel = { channel ->
+                viewModel.playChannel(channel)
+                navigateToChannel()
+            },
+            onAddPlaylist = {
+                Toast.makeText(context, "Use Top Source menu to add Xtream or M3U link", Toast.LENGTH_SHORT).show()
+            },
+            onRefreshPlaylist = { p ->
+                viewModel.selectPlaylist(p)
+            },
+            onStreamDetected = viewModel::onStreamDetected,
+            onClearStreams = viewModel::clearDetectedStreams,
+            onPlayStream = { stream ->
+                viewModel.playInApp(stream.url, stream.title)
+                navigateToChannel()
+            },
+            onCastStream = { stream, dev ->
+                viewModel.castToDevice(dev, stream.url, stream.title)
+            },
+            onCastUrl = { url, title, dev ->
+                viewModel.castToDevice(dev, url, title)
+            },
+            onPlayLocalUrl = { url, title ->
+                viewModel.playInApp(url, title)
+                navigateToChannel()
+            },
+            onStartDlnaSearch = viewModel::startSearch,
+            onRemotePlay = {
+                val dev = selectedDevice ?: devices.firstOrNull()
+                if (dev != null) viewModel.resumeCast(dev)
+            },
+            onRemotePause = {
+                val dev = selectedDevice ?: devices.firstOrNull()
+                if (dev != null) viewModel.pauseCast(dev)
+            },
+            onRemoteStop = {
+                val dev = selectedDevice ?: devices.firstOrNull()
+                if (dev != null) viewModel.stopCast(dev)
+            },
+            onRemoteSeek = { delta ->
+                val dev = selectedDevice ?: devices.firstOrNull()
+                if (dev != null) viewModel.seekCast(dev, delta)
+            },
+            onDiagnoseStream = viewModel::runStreamDoctor,
+            modifier = modifier
+                .fillMaxSize()
+                .padding(contentPadding)
+        )
+        return
+    }
+
     Column(
         modifier = modifier
             .fillMaxSize()

@@ -17,11 +17,16 @@ import com.m3u.data.service.StreamDoctorService
 import com.m3u.data.service.StreamHealthReport
 import com.m3u.data.service.UniversalRemoteService
 import com.m3u.data.service.YouTubeStreamResolver
+import com.m3u.data.repository.playlist.PlaylistRepository
+import com.m3u.data.database.model.Playlist
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import net.mm2d.upnp.Device
@@ -31,6 +36,7 @@ import javax.inject.Inject
 @HiltViewModel
 class CastHubViewModel @Inject constructor(
     @ApplicationContext private val context: Context,
+    private val playlistRepository: PlaylistRepository,
     private val channelRepository: ChannelRepository,
     private val channelDao: ChannelDao,
     private val playerManager: PlayerManager,
@@ -44,6 +50,41 @@ class CastHubViewModel @Inject constructor(
     val devices: StateFlow<List<Device>> = dlnaController.devices
     val searching: StateFlow<Boolean> = dlnaController.searching
     val castState: StateFlow<DlnaCastState> = dlnaController.castState
+
+    val playlists: StateFlow<List<Playlist>> = playlistRepository.observeAll()
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.Lazily,
+            initialValue = emptyList()
+        )
+
+    private val _activePlaylistUrl = MutableStateFlow("")
+    val activePlaylistUrl: StateFlow<String> = _activePlaylistUrl.asStateFlow()
+
+    fun selectPlaylist(playlist: Playlist) {
+        _activePlaylistUrl.value = playlist.url
+    }
+
+    @OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
+    val channels: StateFlow<List<Channel>> = _activePlaylistUrl
+        .flatMapLatest { url ->
+            if (url.isBlank()) {
+                channelRepository.observeAllFavorite()
+            } else {
+                channelRepository.observeAllByPlaylistUrl(url)
+            }
+        }
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.Lazily,
+            initialValue = emptyList()
+        )
+
+    fun playChannel(channel: Channel) {
+        viewModelScope.launch {
+            playerManager.play(MediaCommand.Common(channel.id))
+        }
+    }
 
     // 0 = Quick Cast, 1 = Web Sniffer Browser, 2 = DLNA Devices, 3 = STB Remote, 4 = Stream Doctor
     private val _selectedTab = MutableStateFlow(0)
