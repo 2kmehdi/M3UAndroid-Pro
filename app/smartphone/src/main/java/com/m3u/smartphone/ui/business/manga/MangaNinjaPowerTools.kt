@@ -175,13 +175,13 @@ fun MangaNinjaPowerToolsSheet(
                         ) {
                             Column {
                                 Text(
-                                    text = "Status: ${if (healthReport.isPlayable) "🟢 PLAYABLE" else "🔴 ERROR ${healthReport.httpStatusCode}"}",
-                                    color = if (healthReport.isPlayable) MangaThemeTokens.ToxicMangaGreen else MangaThemeTokens.ActionCrimson,
+                                    text = "Status: ${if (healthReport.isOnline) "🟢 ONLINE" else "🔴 ERROR ${healthReport.statusCode}"}",
+                                    color = if (healthReport.isOnline) MangaThemeTokens.ToxicMangaGreen else MangaThemeTokens.ActionCrimson,
                                     fontWeight = FontWeight.Bold,
                                     fontSize = 11.sp
                                 )
                                 Text(
-                                    text = "Latency: ${healthReport.connectLatencyMs} ms • Bitrate: ${healthReport.chunkDownloadSpeedMbps} Mbps",
+                                    text = "Latency: ${healthReport.responseTimeMs} ms • Bitrate: ${healthReport.downloadSpeedMbps} Mbps",
                                     color = MangaThemeTokens.PaperMuted,
                                     fontSize = 10.sp
                                 )

@@ -114,7 +114,7 @@ fun MangaMasterContainer(
                 modifier = Modifier
                     .fillMaxWidth()
                     .background(MangaThemeTokens.InkSurface)
-                    .border(bottom = 2.dp, color = Color.White)
+                    .border(1.5.dp, Color.White, RoundedCornerShape(0.dp))
                     .horizontalScroll(rememberScrollState())
                     .padding(horizontal = 8.dp, vertical = 8.dp),
                 horizontalArrangement = Arrangement.spacedBy(8.dp),

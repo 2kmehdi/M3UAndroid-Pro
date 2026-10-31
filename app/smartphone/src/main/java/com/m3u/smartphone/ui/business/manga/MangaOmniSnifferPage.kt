@@ -146,7 +146,7 @@ fun MangaOmniSnifferPage(
                         enabled = webViewInstance?.canGoBack() == true,
                         modifier = Modifier.size(32.dp)
                     ) {
-                        Icon(Icons.AutoMirrored.rounded.ArrowBack, contentDescription = "Back", tint = Color.White)
+                        Icon(Icons.AutoMirrored.Rounded.ArrowBack, contentDescription = "Back", tint = Color.White)
                     }
 
                     IconButton(
@@ -154,7 +154,7 @@ fun MangaOmniSnifferPage(
                         enabled = webViewInstance?.canGoForward() == true,
                         modifier = Modifier.size(32.dp)
                     ) {
-                        Icon(Icons.AutoMirrored.rounded.ArrowForward, contentDescription = "Forward", tint = Color.White)
+                        Icon(Icons.AutoMirrored.Rounded.ArrowForward, contentDescription = "Forward", tint = Color.White)
                     }
 
                     OutlinedTextField(
